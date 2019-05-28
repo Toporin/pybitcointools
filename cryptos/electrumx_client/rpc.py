@@ -127,6 +127,22 @@ class ElectrumXClient(RPCClient):
         self.failed_hosts = []
         return values
 
+    def balance(self, with_unconfirmed, *scripthashes):
+        requests = [("blockchain.scripthash.get_balance", [hash]) for hash in scripthashes]
+        
+        results = self.rpc_multiple_send_and_wait(requests)
+        print("results: "+str(results))
+        balances = []
+        for i, result in enumerate(results):
+            if result['error']:
+                raise Exception(result['error'])
+            balance = result['data']['confirmed']
+            if with_unconfirmed:
+                balance+= result['data']['unconfirmed']
+            balances.append(balance)
+        return balances
+    
+    #deprecated!
     def unspent(self, *addrs):
         requests = [("blockchain.address.listunspent", [addr]) for addr in addrs]
         results = self.rpc_multiple_send_and_wait(requests)
@@ -140,5 +156,4 @@ class ElectrumXClient(RPCClient):
                 u['address'] = addr
                 unspents.append(u)
         return unspents
-
     

@@ -333,6 +333,17 @@ def output_script_to_address(script, magicbyte=0):
         script = script[:-2]
     return bin_to_b58check(safe_from_hex(script), magicbyte=magicbyte)
 
+def output_script_to_h160(script):
+    if script.startswith('76'):
+        script = script[6:]
+    else:
+        script = script[4:]
+    if script.endswith('88ac'):
+        script = script[:-4]
+    else:
+        script = script[:-2]
+    return script
+    
 def mk_p2w_scripthash_script(witver, witprog):
     """
     Used in converting a decoded pay to witness script hash address to output script

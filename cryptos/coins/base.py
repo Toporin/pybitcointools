@@ -98,9 +98,21 @@ class BaseCoin(object):
 
     def unspent(self, *addrs):
         """
-        Get unspent transactions for addresses
+        Get unspent transactions for addresses (from electrum server)
         """
         return self.rpc_client.unspent(*addrs)
+    
+    def unspent_web(self, *addrs):
+        """
+        Get unspent transactions for addresses (from blockchain explorer)
+        """
+        return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol)
+    
+    def balance(self, *scripthashes):
+        """
+        Get balance related to given scripthashes
+        """
+        return self.rpc_client.balance(*scripthashes)
 
     def history(self, *addrs, **kwargs):
         """
@@ -240,7 +252,8 @@ class BaseCoin(object):
         """
         Convert a script to the new segwit address format outlined in BIP01743
         """
-        return self.hash_to_segwit_addr(sha256(safe_from_hex(script)))
+        return self.hash_to_segwit_addr(bin_sha256(safe_from_hex(script))) #debugSatochip
+        #return self.hash_to_segwit_addr(sha256(safe_from_hex(script))) #orig
 
     def mk_multsig_address(self, *args):
         """
