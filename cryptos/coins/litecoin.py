@@ -9,7 +9,7 @@ class Litecoin(BaseCoin):
     #script_magicbyte = 50 #Supposed to be new magicbyte
     script_magicbyte = 5 #Old magicbyte still recognised by explorers
     wif_prefix = 0xb0
-    segwit_hrp = "ltc1"
+    segwit_hrp = "ltc"
     hd_path = 2
     explorer = sochain
     testnet_overrides = {
@@ -18,7 +18,7 @@ class Litecoin(BaseCoin):
         'magicbyte': 111,
         #script_magicbyte: 58   #Supposed to be new magicbyte
         'script_magicbyte': 196, #Old magicbyte still recognised by explorers,
-        'segwit_hrp': "tltc1",
+        'segwit_hrp': "tltc",
         'hd_path': 1,
         'xpriv_prefix': 0x04358394,
         'xpub_prefix': 0x043587cf
