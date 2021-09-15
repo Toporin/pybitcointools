@@ -12,12 +12,30 @@ tx_details_url = base_url + "tx/%s/%s"
 tx_inputs_url = base_url + "get_tx_inputs/%s/%s"
 network_url = base_url + "get_info/%s"
 block_url = base_url + "block/%s/%s"
+balance_url= base_url + "get_address_balance/%s/%s" 
+
+def balance(addr, coin_symbol="LTC", apikeys={}):
+    url = balance_url % (coin_symbol, addr)
+    response = requests.get(url)
+    try:
+        result = response.json()
+        print(f"DEBUG SOCHAIN {result}")
+        if 'data' in result.keys():
+            balance= int(result['data']['confirmed_balance'].replace('.', '')) # balance in sats...
+            balance= balance/(10**8) #TODO: use Decimal for better precision?
+            return balance
+        else:
+            raise Exception(response.text)
+    except ValueError:
+        raise Exception("Unable to decode JSON from result: %s" % response.text)
 
 def unspent(addr, coin_symbol="LTC"):
     url = utxo_url % (coin_symbol, addr)
     response = requests.get(url)
+    #print(f"DEBUG SOCHAIN {response}")
     try:
         result = response.json()
+        print(f"DEBUG SOCHAIN {result}")
         if 'data' in result.keys() and 'txs' in result['data'].keys():
             txs = response.json()['data']['txs']
             for i, tx in enumerate(txs):

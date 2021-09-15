@@ -8,6 +8,28 @@ def get_url(coin_symbol):
   
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
+
+def balance(addr, coin_symbol="BTC", apikeys={}):
+    
+    base_url = get_url(coin_symbol)
+    url = address_url % (base_url, addr)
+    print(f"DEBUG blockstream {url}")
+    response = requests.get(url)
+    
+    if response.text == "[]":
+        return []
+    try:
+        res = response.json()
+        funded_txo_sum= res['chain_stats']['funded_txo_sum']
+        print(f"DEBUG blockstream funded_txo_sum {funded_txo_sum}")
+        spent_txo_sum= res['chain_stats']['spent_txo_sum']
+        print(f"DEBUG blockstream spent_txo_sum {spent_txo_sum}")
+        balance= (funded_txo_sum - spent_txo_sum)/(10**8)
+        print(f"DEBUG blockstream balance {balance}")
+        return balance
+        
+    except (ValueError, KeyError):
+        raise Exception("Unable to decode JSON from result: %s" % response.text)
   
 def unspent(*args, coin_symbol="BTC"):
 
@@ -19,6 +41,7 @@ def unspent(*args, coin_symbol="BTC"):
     
     base_url = get_url(coin_symbol)
     url = utxo_url % (base_url, '|'.join(addrs))
+    print(f"DEBUG blockstream {url}")
     response = requests.get(url)
     
     if response.text == "[]":

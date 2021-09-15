@@ -9,6 +9,9 @@ setup(name='cryptos',
       author_email='paulmartinforwork@gmail.com',
       url='http://github.com/primal100/pybitcointools',
       packages=find_packages(),
+      package_data={
+        'cryptos': ['*.txt'],
+      },
       scripts=['cryptotool'],
       include_package_data=True,
       classifiers=[

@@ -22,6 +22,7 @@ class BaseCoin(object):
     script_magicbyte = None
     segwit_hrp = None
     explorer = blockchain
+    apikeys = {}
     client = ElectrumXClient
     client_kwargs = {
         'server_file': 'bitcoin.json',
@@ -33,6 +34,7 @@ class BaseCoin(object):
         'loop': None
     }
     is_testnet = False
+    use_compressed_addr= True
     address_prefixes = ()
     testnet_overrides = {}
     hashcode = SIGHASH_ALL
@@ -106,14 +108,32 @@ class BaseCoin(object):
         """
         Get unspent transactions for addresses (from blockchain explorer)
         """
-        return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol)
+        try: 
+            return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+        except Exception as ex:
+            return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol)
+    
+    # def unspent_token(self, addr:str, contract:str):
+        # return self.explorer.unspent_token(addr, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+        
+    def get_token_info(self, addr:str, contract:str):
+        return self.explorer.get_token_info(add, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
     
     def balance(self, *scripthashes):
         """
         Get balance related to given scripthashes
         """
         return self.rpc_client.balance(*scripthashes)
-
+        
+    def balance_web(self, addr):
+        """
+        Get balance for address (from explorer API)
+        """
+        return self.explorer.balance(addr, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+    
+    def balance_token(self, addr:str, contract:str):
+        return self.explorer.balance_token(addr, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+    
     def history(self, *addrs, **kwargs):
         """
         Get transaction history for addresses
