@@ -8,7 +8,12 @@ def get_url(coin_symbol):
   
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
-  
+
+def address_weburl(addr, coin_symbol="ETH", apikeys={}):
+    if coin_symbol == "ETH":
+        return "https://etherscan.io/address/"+addr 
+    return "https://ropsten.etherscan.io/address/"+addr
+
 def balance(addr, coin_symbol="ETH", apikeys={}):
     '''
     https://api.etherscan.io/api

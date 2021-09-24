@@ -113,9 +113,6 @@ class BaseCoin(object):
         except Exception as ex:
             return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol)
     
-    # def unspent_token(self, addr:str, contract:str):
-        # return self.explorer.unspent_token(addr, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
-        
     def get_token_info(self, addr:str, contract:str):
         return self.explorer.get_token_info(add, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
     
@@ -133,6 +130,9 @@ class BaseCoin(object):
     
     def balance_token(self, addr:str, contract:str):
         return self.explorer.balance_token(addr, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+    
+    def address_weburl(self, addr:str):
+        return self.explorer.address_weburl(addr, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
     
     def history(self, *addrs, **kwargs):
         """

@@ -7,7 +7,6 @@ from .utils import parse_addr_args
 # https://blockscout.com/xdai/mainnet/api-docs
 # 
 
-
 def get_url(coin_symbol):
     base_url= "https://blockscout.com/xdai/mainnet/api"
     
@@ -26,7 +25,24 @@ def get_url(coin_symbol):
     else:
         return "https://blockscout.com/etc/mainnet/api" #?
   
-  
+    # returns web link for browsing
+    def address_weburl(addr, coin_symbol="ETC", apikeys={}):
+        base_url= "https://blockscout.com/%s/%s/address/%s"
+        if coin_symbol == "ETC":
+            return base_url % (etc, mainnet, addr)
+        elif coin_symbol == "ETCTEST":
+            return base_url % (etc, mordor, addr)
+        elif coin_symbol in ["xDAI", "xDAITESt"]:
+            return base_url % (xdai, mainnet, addr)
+        elif coin_symbol in ["RBTC", "RBTCTEST"]: # RSK
+            return base_url % (rsk, mainnet, addr)
+        elif coin_symbol =="POA":
+            return base_url % (poa, core, addr)
+        elif coin_symbol == "POATEST": 
+            return base_url % (poa, sokol, addr)
+        else:
+            return base_url % (etc, mainnet, addr) # default?
+      
 def balance(addr, coin_symbol="ETC", apikeys={}):
     
     #apikey= apikeys.get('API_KEY_ETHERSCAN','0')    
