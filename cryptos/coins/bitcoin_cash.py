@@ -1,6 +1,6 @@
 from .base import BaseCoin
 from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
-from ..explorers import blockdozer
+from ..explorers import fullstack #blockdozer
 
 class BitcoinCash(BaseCoin):
     coin_symbol = "BCH"
@@ -10,7 +10,7 @@ class BitcoinCash(BaseCoin):
     script_magicbyte = 5
     wif_prefix = 0x80
     hd_path = 145
-    explorer = blockdozer
+    explorer = fullstack
     hashcode = SIGHASH_ALL | SIGHASH_FORKID
     testnet_overrides = {
         'display_name': "Bitcoin Cash Testnet",

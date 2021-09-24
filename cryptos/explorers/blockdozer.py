@@ -1,5 +1,8 @@
 from . import base_insight as insight
 
+# TODO: remove
+# this project appears to be dead
+
 base_url = "https://%s.blockdozer.com/insight-api"
 
 def unspent(*args, coin_symbol="bcc"):
