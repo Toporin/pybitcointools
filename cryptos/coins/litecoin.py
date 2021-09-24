@@ -18,6 +18,7 @@ class Litecoin(BaseCoin):
         'magicbyte': 111,
         'script_magicbyte': 58,   #Supposed to be new magicbyte
         #'script_magicbyte': 196, #Old magicbyte still recognised by explorers,
+        'wif_prefix': 0xef,
         'segwit_hrp': "tltc",
         'hd_path': 1,
         'xpriv_prefix': 0x04358394,

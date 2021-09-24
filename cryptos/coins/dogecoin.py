@@ -8,7 +8,7 @@ class Doge(BaseCoin):
     segwit_supported = False
     magicbyte = 30
     script_magicbyte = 22
-    to_wif = 0x9e
+    wif_prefix = 0x9e
     hd_path = 3
     explorer = sochain
     xpriv_prefix = 0x02facafd
@@ -18,6 +18,7 @@ class Doge(BaseCoin):
         'coin_symbol': "Dogecoin",
         'magicbyte': 113,
         'script_magicbyte': 196,
+        'wif_prefix': 0xf1, #https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp#L157 => base58Prefixes[SECRET_KEY]
         'hd_path': 1,
         'xpriv_prefix': 0x04358394,
         'xpub_prefix': 0x043587cf
