@@ -9,6 +9,8 @@ def get_url(coin_symbol):
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
 
+headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
+
 def address_weburl(addr, coin_symbol="ETH", apikeys={}):
     if coin_symbol == "ETH":
         return "https://etherscan.io/address/"+addr 
@@ -28,7 +30,7 @@ def balance(addr, coin_symbol="ETH", apikeys={}):
     base_url = get_url(coin_symbol)
     url= base_url + "?module=account&action=balance&address=" + addr + "&tag=latest&apikey=" + apikey
     print(f"DEBUG ETHERSCAN {url}")
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
     print(f"DEBUG ETHERSCAN {response}")
     
     if response.text == "[]":
@@ -65,7 +67,7 @@ def balance_token(addr:str, contract:str, coin_symbol="ETH", apikeys={}):
     #url = utxo_url % (base_url, '|'.join(addrs))
     url= base_url + "?module=account&action=tokenbalance&contractaddress="+contract+"&address=" + addr + "&tag=latest&apikey=" + apikey
     print(f"DEBUG ETHERSCAN {url}")
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
     print(f"DEBUG ETHERSCAN {response}")
     
     if response.text == "[]":
@@ -87,7 +89,7 @@ def get_token_info(addr:str, contract:str, coin_symbol="ETH", apikeys={}):
     base_url = "https://api.ethplorer.io"
     url=  base_url + "/getTokenInfo/" + contract + "?apiKey=" + apikey
     
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
     if response.text == "[]":
         return []
     try:
