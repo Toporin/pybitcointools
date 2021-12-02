@@ -166,7 +166,7 @@ class BaseCoin(object):
 
     def pubtoaddr(self, pubkey):
         """
-        Get address from a pubic key
+        Get address from a public key
         """
         return pubtoaddr(pubkey, magicbyte=self.magicbyte)
 

@@ -5,3 +5,4 @@ pycryptodomex
 eth-hash
 #pysha3
 pycryptodome
+cashaddress

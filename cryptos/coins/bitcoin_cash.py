@@ -2,6 +2,8 @@ from .base import BaseCoin
 from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
 from ..explorers import fullstack #blockdozer
 
+from cashaddress import convert # cashAddr conversion for bcash
+
 class BitcoinCash(BaseCoin):
     coin_symbol = "BCH"
     display_name = "Bitcoin Cash"
@@ -27,6 +29,20 @@ class BitcoinCash(BaseCoin):
         'hd_path': 1,
     }
 
-    def __init__(self, legacy=False, testnet=False, **kwargs):
+    def __init__(self, testnet=False, legacy=False, **kwargs):
         super(BitcoinCash, self).__init__(testnet=testnet, **kwargs)
         self.hd_path = 0 if legacy and testnet else self.hd_path
+        
+    def pubtoaddr(self, pubkey):
+        """
+        Get address from a public key
+        """
+        #addr_legacy= super(BitcoinCash, self).pubtoaddr(pubkey, magicbyte=self.magicbyte)
+        addr_legacy= super().pubtoaddr(pubkey)
+        print("ADDR_LEGACY: "+addr_legacy)
+        addr= convert.to_cash_address(addr_legacy) #cashAddr conversion
+        
+        return addr
+        
+        
+        

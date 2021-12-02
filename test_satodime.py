@@ -10,6 +10,8 @@ import binascii
 # seed: tonight stem cause eyebrow estate smart duck wrong toe under job danger
 # path: m/84'/0'/0'/0/* (using BIP84 path to get bech32 and base58 address)
 
+# to run test: python3 -m unittest test_satodime
+
 def wif2priv(private_key_WIF):
     first_encode = base58.b58decode(private_key_WIF)
     private_key_full = first_encode.hex() #binascii.hexlify(first_encode)
@@ -544,7 +546,7 @@ class BitcoinCashCase(unittest.TestCase):
         self.assertEqual( self.coin.segwit_supported, False)
         self.assertEqual( self.coin.use_compressed_addr, True)
         PUBKEY= PUBKEY_BCH
-        ADDRESS= ADDRESS_BCH
+        ADDRESS= ADDRESS_BCH_CASHADDR #ADDRESS_BCH
         PRIVKEY_WIF= PRIVKEY_WIF_BCH
         ADDRESS_SEGWIT= ADDRESS_SEGWIT_BCH
         
