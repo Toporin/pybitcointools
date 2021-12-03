@@ -1,0 +1,46 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0]: 
+
+Initial version of the package forked from https://github.com/Alcofribas4/pybitcointools.
+
+### Changed 
+
+- Changed module & package name to pycryptotools
+
+### Added 
+
+- Add API support for getting balance from explorers.
+- Add support for API keys (required for etherscan/bscscan)
+  
+- Add coins:
+-- Ethereum
+-- BCS, ETC & other ethereum forks
+    
+- Add Explorers: etherscan, bcsscan, blockscout, fullstack.cash (BCH)
+
+- Add address_weburl() function in explorers: this function returns a url link to the explorer that the user can browse to have detailed info for a given address
+
+- Add test suite for functionalities used by Satodime
+  Methods included in tests:
+    - coin.display_name
+    - coin.coin_symbol
+    - coin.segwit_supported
+    - coin.use_compressed_addr
+    - coin.pubtoaddr
+    - coin.pubtosegwit
+    - coin.encode_privkey
+    - (coin.address_weburl)
+    
+### Fixed
+
+- Correct wif_prefix for Dogecoin & Litecoin
+
+### Removed
+
+- Blockdozer explorer appears to be discontinued

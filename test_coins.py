@@ -1,9 +1,9 @@
 from unittest import skip
 import unittest
 from operator import itemgetter
-from cryptos import *
-from cryptos import coins
-from cryptos import explorers
+from pycryptotools import *
+from pycryptotools import coins
+from pycryptotools import explorers
 
 class BaseCoinCase(unittest.TestCase):
     name = ""

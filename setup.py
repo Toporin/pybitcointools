@@ -1,28 +1,37 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-setup(name='cryptos',
-      version='1.36',
-      description='Python Crypto Coin Tools',
-      long_description=open('README.md').read(),
-      author='Paul Martin',
-      author_email='paulmartinforwork@gmail.com',
-      url='http://github.com/primal100/pybitcointools',
-      packages=find_packages(),
-      package_data={
-        'cryptos': ['*.txt'],
-      },
-      scripts=['cryptotool'],
-      include_package_data=True,
-      classifiers=[
-            'Development Status :: 5 - Production/Stable',
-            'Intended Audience :: Developers',
-            'Intended Audience :: Education',
-            'License :: OSI Approved :: MIT License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 3',
-            'Topic :: Security :: Cryptography',
-      ],
-      )
+setup(
+    name='pycryptotools',
+    version='0.1.0',
+    description='Python Crypto Coin Tools',
+    long_description=open('README.md').read(),
+    author='Toporin',
+    author_email='satochip.wallet@gmail.com',
+    url='https://github.com/Toporin/pybitcointools',
+    project_urls={
+        'Github': 'https://github.com/Toporin',
+        'Webshop': 'https://satochip.io/',
+        'Telegram': 'https://t.me/Satochip',
+        'Twitter': 'https://twitter.com/satochipwallet',
+        'Source': 'https://github.com/Toporin/pybitcointools',
+        'Tracker': 'https://github.com/Toporin/pybitcointools/issues',
+    },
+    packages=find_packages(),
+    package_data={
+        'pycryptotools': ['*.txt'],
+    },
+    scripts=['cryptotool'],
+    include_package_data=True,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Security :: Cryptography',
+    ],
+    python_requires='>=3.6',
+)

@@ -1,5 +1,5 @@
 import unittest
-from cryptos import *
+from pycryptotools import *
 
 import hashlib
 import base58
@@ -623,7 +623,7 @@ class EthereumCase(unittest.TestCase):
         PRIVKEY_WIF= PRIVKEY_WIF_ETH
         PRIVKEY= PRIVKEY_ETH
         ADDRESS_SEGWIT= ADDRESS_SEGWIT_ETH
-        from cryptos.main import decompress
+        from pycryptotools.main import decompress
         
         for i, pubkey_hex in enumerate(PUBKEY):
             

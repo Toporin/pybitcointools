@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from cryptos import *
+from pycryptotools import *
 
 
 # TODO passphrase/seed_extension

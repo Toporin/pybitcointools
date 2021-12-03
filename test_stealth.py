@@ -1,4 +1,4 @@
-import cryptos as bc
+import pycryptotools as bc
 import sys
 import unittest
 

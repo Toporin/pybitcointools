@@ -1,6 +1,6 @@
 import unittest
-import cryptos.ripemd as ripemd
-from cryptos import *
+import pycryptotools.ripemd as ripemd
+from pycryptotools import *
 
 
 class TestECCArithmetic(unittest.TestCase):

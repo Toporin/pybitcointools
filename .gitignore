@@ -1,4 +1,6 @@
 *.pyc
 *.swp
 cryptos.egg-info/*
+pycryptotools.egg-info/*
 build/
+dist/
