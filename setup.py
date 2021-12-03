@@ -8,14 +8,14 @@ setup(
     long_description=open('README.md').read(),
     author='Toporin',
     author_email='satochip.wallet@gmail.com',
-    url='https://github.com/Toporin/pybitcointools',
+    url='https://github.com/Toporin/pycryptotools',
     project_urls={
         'Github': 'https://github.com/Toporin',
         'Webshop': 'https://satochip.io/',
         'Telegram': 'https://t.me/Satochip',
         'Twitter': 'https://twitter.com/satochipwallet',
-        'Source': 'https://github.com/Toporin/pybitcointools',
-        'Tracker': 'https://github.com/Toporin/pybitcointools/issues',
+        'Source': 'https://github.com/Toporin/pycryptotools',
+        'Tracker': 'https://github.com/Toporin/pycryptotools/issues',
     },
     packages=find_packages(),
     package_data={
