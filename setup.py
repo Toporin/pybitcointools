@@ -6,6 +6,7 @@ setup(
     version='0.1.0',
     description='Python Crypto Coin Tools',
     long_description=open('README.md').read(),
+    long_description_content_type= 'text/markdown',
     author='Toporin',
     author_email='satochip.wallet@gmail.com',
     url='https://github.com/Toporin/pycryptotools',
