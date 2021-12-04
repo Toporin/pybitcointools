@@ -5,7 +5,7 @@ This is a fork of Vitalik Buterin's original [pybitcointools](https://github.com
 Installation:
 
 ```bash
-pip install cryptos
+pip install pycryptotools
 ```
 
 Library now supports making and pushing raw transactions for:
