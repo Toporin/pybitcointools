@@ -1,8 +1,8 @@
 requests
 pbkdf2
-pycryptodomex
-#eth-utils==1.8.4
 eth-hash
-#pysha3
-pycryptodome
 cashaddress
+#pycryptodomex
+#pycryptodome
+#pysha3
+#eth-utils==1.8.4

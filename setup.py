@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+import setuptools
 
-setup(
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+setuptools.setup(
     name='pycryptotools',
-    version='0.1.0',
+    version='0.1.1',
     description='Python Crypto Coin Tools',
     long_description=open('README.md').read(),
     long_description_content_type= 'text/markdown',
@@ -18,7 +21,11 @@ setup(
         'Source': 'https://github.com/Toporin/pycryptotools',
         'Tracker': 'https://github.com/Toporin/pycryptotools/issues',
     },
-    packages=find_packages(),
+    install_requires=requirements,
+    packages=setuptools.find_packages(),
+    package_dir={
+        'pycryptotools': 'pycryptotools'
+    },
     package_data={
         'pycryptotools': ['*.txt'],
     },
