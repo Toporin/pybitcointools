@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='pycryptotools',
-    version='0.1.1',
+    version='0.1.2',
     description='Python Crypto Coin Tools',
     long_description=open('README.md').read(),
     long_description_content_type= 'text/markdown',
