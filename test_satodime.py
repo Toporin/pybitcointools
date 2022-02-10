@@ -77,7 +77,8 @@ class BitcoinCase(unittest.TestCase):
             #pub_bytes= bytes.fromhex(pubkey_hex)
             pubkey_list= list(bytes.fromhex(pubkey_hex))
             addr= self.coin.pubtoaddr(bytes(pubkey_list))
-            self.assertEqual(addr, ADDRESS[i])
+            #self.assertEqual(addr, ADDRESS[i])
+            self.assertEqual(addr, ADDRESS_SEGWIT[i])
             
             privkey_hex= wif2priv(PRIVKEY_WIF[i])
             privkey_list= list(bytes.fromhex(privkey_hex))
@@ -90,8 +91,10 @@ class BitcoinCase(unittest.TestCase):
             
             # segwit
             if self.coin.segwit_supported:
-                addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
-                self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                # addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
+                # self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                addr_legacy= self.coin.pubtolegacy(bytes(pubkey_list))
+                self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
             url= self.coin.address_weburl(addr)
@@ -156,7 +159,8 @@ class BitcoinTestCase(unittest.TestCase):
             #pub_bytes= bytes.fromhex(pubkey_hex)
             pubkey_list= list(bytes.fromhex(pubkey_hex))
             addr= self.coin.pubtoaddr(bytes(pubkey_list))
-            self.assertEqual(addr, ADDRESS[i])
+            #self.assertEqual(addr, ADDRESS[i])
+            self.assertEqual(addr, ADDRESS_SEGWIT[i])
             
             #PRIVKEY_WIF= PRIVKEY_WIF[i]
             privkey_hex= wif2priv(PRIVKEY_WIF[i])
@@ -170,8 +174,10 @@ class BitcoinTestCase(unittest.TestCase):
             
             # segwit
             if self.coin.segwit_supported:
-                addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
-                self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                # addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
+                # self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                addr_legacy= self.coin.pubtolegacy(bytes(pubkey_list))
+                self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
             url= self.coin.address_weburl(addr)
@@ -232,7 +238,8 @@ class LitecoinCase(unittest.TestCase):
             #pub_bytes= bytes.fromhex(pubkey_hex)
             pubkey_list= list(bytes.fromhex(pubkey_hex))
             addr= self.coin.pubtoaddr(bytes(pubkey_list))
-            self.assertEqual(addr, ADDRESS[i])
+            #self.assertEqual(addr, ADDRESS[i])
+            self.assertEqual(addr, ADDRESS_SEGWIT[i])
             
             #PRIVKEY_WIF= PRIVKEY_WIF[i]
             privkey_hex= wif2priv(PRIVKEY_WIF[i])
@@ -246,8 +253,10 @@ class LitecoinCase(unittest.TestCase):
             
             # segwit
             if self.coin.segwit_supported:
-                addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
-                self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                # addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
+                # self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                addr_legacy= self.coin.pubtolegacy(bytes(pubkey_list))
+                self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
             url= self.coin.address_weburl(addr)
@@ -326,7 +335,8 @@ class LitecoinTestCase(unittest.TestCase):
             #pub_bytes= bytes.fromhex(pubkey_hex)
             pubkey_list= list(bytes.fromhex(pubkey_hex))
             addr= self.coin.pubtoaddr(bytes(pubkey_list))
-            self.assertEqual(addr, ADDRESS[i])
+            #self.assertEqual(addr, ADDRESS[i])
+            self.assertEqual(addr, ADDRESS_SEGWIT[i])
             
             #PRIVKEY_WIF= PRIVKEY_WIF[i]
             privkey_hex= wif2priv(PRIVKEY_WIF[i])
@@ -341,8 +351,10 @@ class LitecoinTestCase(unittest.TestCase):
             
             # segwit
             if self.coin.segwit_supported:
-                addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
-                self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                # addr_segwit= self.coin.pubtosegwit(bytes(pubkey_list))
+                # self.assertEqual(addr_segwit, ADDRESS_SEGWIT[i])
+                addr_legacy= self.coin.pubtolegacy(bytes(pubkey_list))
+                self.assertEqual(addr_legacy, ADDRESS[i])
                 #print(addr_segwit)
             
             #url

@@ -168,13 +168,35 @@ class BaseCoin(object):
         """
         Get address from a public key
         """
-        return pubtoaddr(pubkey, magicbyte=self.magicbyte)
-
+        if self.segwit_supported:
+            return self.pubtosegwit(pubkey)
+        else:
+            return self.pubtolegacy(pubkey)
+    
     def privtoaddr(self, privkey):
         """
         Get address from a private key
         """
-        return privtoaddr(privkey, magicbyte=self.magicbyte)
+        if self.segwit_supported:
+            return self.privtosegwit(privkey)
+        else:
+            return self.privtolegacy(privkey)
+        
+    def pubtolegacy(self, pubkey, use_compressed_addr= None):
+        """
+        Get address from a public key
+        """
+        if use_compressed_addr == None:
+            use_compressed_addr = self.use_compressed_addr
+        if use_compressed_addr and len(pubkey)==65:  
+            pubkey= compress(pubkey)
+        return pubtolegacy(pubkey, magicbyte=self.magicbyte)
+
+    def privtolegacy(self, privkey):
+        """
+        Get address from a private key
+        """
+        return privtolegacy(privkey, magicbyte=self.magicbyte)
 
     def electrum_address(self, masterkey, n, for_change=0):
         """
@@ -262,10 +284,14 @@ class BaseCoin(object):
         """
         return self.pubtosegwit(self.privtopub(privkey))
 
-    def pubtosegwit(self, pubkey):
+    def pubtosegwit(self, pubkey, use_compressed_addr=None):
         """
         Convert a public key to the new segwit address format outlined in BIP01743
         """
+        if use_compressed_addr == None:
+            use_compressed_addr = self.use_compressed_addr
+        if use_compressed_addr and len(pubkey)==65:  
+            pubkey= compress(pubkey)
         return self.hash_to_segwit_addr(pubkey_to_hash(pubkey))
 
     def script_to_p2wsh(self, script):

@@ -299,9 +299,9 @@ def privkey_to_pubkey(privkey):
 privtopub = privkey_to_pubkey
 
 
-def privkey_to_address(priv, magicbyte=0):
-    return pubkey_to_address(privkey_to_pubkey(priv), magicbyte)
-privtoaddr = privkey_to_address
+def privkey_to_legacy_address(priv, magicbyte=0):
+    return pubkey_to_legacy_address(privkey_to_pubkey(priv), magicbyte)
+privtolegacy = privkey_to_legacy_address
 
 
 def neg_pubkey(pubkey):
@@ -455,11 +455,11 @@ def pubkey_to_hash(pubkey):
 def pubkey_to_hash_hex(pubkey):
     return safe_hexlify(pubkey_to_hash(pubkey))
 
-def pubkey_to_address(pubkey, magicbyte=0):
+def pubkey_to_legacy_address(pubkey, magicbyte=0):
     pubkey_hash = pubkey_to_hash(pubkey)
     return bin_to_b58check(pubkey_hash, magicbyte)
 
-pubtoaddr = pubkey_to_address
+pubtolegacy = pubkey_to_legacy_address
 
 
 def is_privkey(priv):
