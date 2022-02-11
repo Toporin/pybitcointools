@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0]: 
+
+Use segwit by default for pubtoaddr.    
+If segwit is not supported, use legacy address.
+Legacy address is also supported through pubtolegacy.
+
+### Added
+
+Add basic NFT support:
+    - Add Rarible explorer
+    - Add Opensea explorer (WIP - still issues with API requests rejected by server)
+    
+Via Rarible, it is possible to fetch some NFT asset info based on contract & tokenid:
+    - NFT name
+    - description
+    - image preview url
+    - web link to rarible (& opensea)
+
 ## [0.1.2]: 
 
 ### Fixed
