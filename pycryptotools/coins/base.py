@@ -22,6 +22,7 @@ class BaseCoin(object):
     script_magicbyte = None
     segwit_hrp = None
     explorer = blockchain
+    nft_explorer= None
     apikeys = {}
     client = ElectrumXClient
     client_kwargs = {
@@ -115,6 +116,11 @@ class BaseCoin(object):
     
     def get_token_info(self, addr:str, contract:str):
         return self.explorer.get_token_info(add, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+    
+    def get_nft_info(self, contract:str, tokenID: str):
+        if self.nft_explorer is None:
+            return {}
+        return self.nft_explorer.get_nft_info(contract, tokenID)
     
     def balance(self, *scripthashes):
         """

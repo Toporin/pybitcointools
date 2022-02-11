@@ -1,5 +1,7 @@
 #from ..explorers import blockchain
 from ..explorers import etherscan
+from ..explorers import rarible
+from ..explorers import opensea
 from .base import BaseCoin
 
 #from eth_utils import keccak
@@ -10,10 +12,12 @@ class Ethereum(BaseCoin):
     display_name = "Ethereum"
     segwit_supported = False
     use_compressed_addr= False
-    explorer = etherscan
     magicbyte = 0
     script_magicbyte = 5
-
+    explorer = etherscan
+    nft_explorer= rarible #opensea # rarible # 
+    nft_supported= True
+    
     testnet_overrides = {
         'display_name': "Ropsten Testnet",
         'coin_symbol': "ROP",
@@ -53,3 +57,9 @@ class Ethereum(BaseCoin):
         pubkey_hash= pubkey_hash[-20:]
         addr= "0x" + pubkey_hash.hex()
         return addr
+        
+    def get_nft_owner_weburl(self, address:str) -> str:
+        return opensea.get_address_weburl(address)
+        
+    def get_nft_weburl(self, contract:str, token_id:str)->str:
+        return opensea.get_nft_weburl(contract, token_id)
