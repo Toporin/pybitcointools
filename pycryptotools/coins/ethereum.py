@@ -59,7 +59,7 @@ class Ethereum(BaseCoin):
         return addr
         
     def get_nft_owner_weburl(self, address:str) -> str:
-        return opensea.get_address_weburl(address)
+        return opensea.get_nft_owner_weburl(address)
         
     def get_nft_weburl(self, contract:str, token_id:str)->str:
         return opensea.get_nft_weburl(contract, token_id)

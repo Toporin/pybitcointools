@@ -11,7 +11,7 @@ def get_api_url(coin_symbol:str="ETH"):
         return "https://ethereum-api.rarible.org/v0.1/" # main
     return "https://ethereum-api-dev.rarible.org/v0.1/" # Ropsten
     
-def address_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
+def get_nft_owner_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
     web_url="https://example.com"
     return web_url
 

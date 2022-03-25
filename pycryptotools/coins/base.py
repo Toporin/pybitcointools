@@ -89,6 +89,22 @@ class BaseCoin(object):
         self.secondary_hashcode = self.secondary_hashcode or self.hashcode
         self._rpc_client = None
 
+    # EXPLORER #
+    def get_nft_owner_weburl(self, address:str) -> str:
+        print("DEBUG get_nft_owner_weburl()")
+        if self.nft_explorer is None:
+            print("DEBUG get_nft_owner_weburl() nft_explorer is none")
+            return ""
+        else:
+            print("DEBUG get_nft_owner_weburl(): " + self.nft_explorer.get_nft_owner_weburl(address))
+            return self.nft_explorer.get_nft_owner_weburl(address)
+        
+    def get_nft_weburl(self, contract:str, token_id:str)->str:
+        if self.nft_explorer is None:
+            return ""
+        else:
+            return self.nft_explorer.get_nft_weburl(contract, token_id)
+
     @property
     def rpc_client(self):
         """
@@ -115,7 +131,7 @@ class BaseCoin(object):
             return self.explorer.unspent(*addrs, coin_symbol=self.coin_symbol)
     
     def get_token_info(self, addr:str, contract:str):
-        return self.explorer.get_token_info(add, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
+        return self.explorer.get_token_info(addr, contract, coin_symbol=self.coin_symbol, apikeys=self.apikeys)
     
     def get_nft_info(self, contract:str, tokenID: str):
         if self.nft_explorer is None:

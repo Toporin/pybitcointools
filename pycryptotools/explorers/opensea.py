@@ -15,7 +15,7 @@ def address_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
     web_url="https://opensea.io/" + addr
     return web_url;
     
-def get_address_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
+def get_nft_owner_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
     return address_weburl(addr, coin_symbol, apikeys)
 
 def get_nft_weburl(contract:str, tokenID:str, apikeys={}):

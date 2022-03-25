@@ -1,5 +1,7 @@
 # Pycryptotools, Python library for Crypto coins signatures and transactions
 
+[![Latest Version](https://img.shields.io/pypi/v/pycryptotools.svg?style=flat)](https://pypi.org/project/pycryptotools/)
+
 This is a fork of Vitalik Buterin's original [pybitcointools](https://github.com/vbuterin/pybitcointools) library.
 
 Installation:
