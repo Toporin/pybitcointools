@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1]: 
+
+Add Counterparty (XCP) and UnsupportedCoin (???) support.
+UnsupportedCoin is the default coin when support does not exist yet. 
+
+### Added
+
+Add basic Counterparty support:
+    - Add Xchain.io explorer
+    
 ## [0.2.0]: 
 
 Use segwit by default for pubtoaddr.    
