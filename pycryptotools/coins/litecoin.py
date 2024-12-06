@@ -1,7 +1,8 @@
-from .base import BaseCoin
+from .bitcoin import Bitcoin
 from ..explorers import sochain
 
-class Litecoin(BaseCoin):
+
+class Litecoin(Bitcoin):
     coin_symbol = "LTC"
     display_name = "Litecoin"
     segwit_supported = True

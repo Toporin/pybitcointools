@@ -1,4 +1,4 @@
-from . import base_insight, bitpay, blockcypher, blockdozer, dash_siampm, sochain
+from . import base_insight, bitpay, blockcypher, blockdozer, sochain
 
 def parse_addr_args(*args):
     # Valid input formats: unspent([addr1, addr2, addr3])

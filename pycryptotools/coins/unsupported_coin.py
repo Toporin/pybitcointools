@@ -1,6 +1,6 @@
 #from ..explorers import blockchain
 from ..explorers import blockstream
-from .base import BaseCoin
+from .base_coin import BaseCoin
 
 
 class UnsupportedCoin(BaseCoin):

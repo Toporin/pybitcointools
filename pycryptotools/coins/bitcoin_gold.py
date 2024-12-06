@@ -1,4 +1,4 @@
-from .base import BaseCoin
+from .base_coin import BaseCoin
 from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
 from ..explorers import btg_explorer
 from ..main import b58check_to_bin

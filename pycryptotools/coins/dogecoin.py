@@ -1,8 +1,8 @@
-from .bitcoin import BaseCoin
+from .bitcoin import Bitcoin
 from ..explorers import sochain
 
 
-class Doge(BaseCoin):
+class Doge(Bitcoin):
     coin_symbol = "DOGE"
     display_name = "Dogecoin"
     segwit_supported = False

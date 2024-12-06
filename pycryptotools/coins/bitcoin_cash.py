@@ -1,10 +1,11 @@
-from .base import BaseCoin
+from .base_coin import BaseCoin
+from .bitcoin import Bitcoin
 from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
 from ..explorers import fullstack #blockdozer
 
 from cashaddress import convert # cashAddr conversion for bcash
 
-class BitcoinCash(BaseCoin):
+class BitcoinCash(Bitcoin):
     coin_symbol = "BCH"
     display_name = "Bitcoin Cash"
     segwit_supported = False
