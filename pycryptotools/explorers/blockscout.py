@@ -7,6 +7,8 @@ from .utils import parse_addr_args
 # https://blockscout.com/xdai/mainnet/api-docs
 # 
 
+# TODO deprecate
+
 def get_url(coin_symbol):
     base_url= "https://blockscout.com/xdai/mainnet/api"
     

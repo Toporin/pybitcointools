@@ -2,7 +2,7 @@
 from ..explorers import etherscan
 from ..explorers import rarible
 from ..explorers import opensea
-from .base import BaseCoin
+from .base_coin import BaseCoin
 
 #from eth_utils import keccak
 from eth_hash.auto import keccak
@@ -19,8 +19,8 @@ class Ethereum(BaseCoin):
     nft_supported= True
     
     testnet_overrides = {
-        'display_name': "Ropsten Testnet",
-        'coin_symbol': "ROP",
+        'display_name': "Ethereum Testnet", # sepolia?
+        'coin_symbol': "ETHTEST",
         'magicbyte': 111,
         'script_magicbyte': 196,
         'hd_path': 1,

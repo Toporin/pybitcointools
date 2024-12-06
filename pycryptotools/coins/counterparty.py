@@ -1,20 +1,22 @@
 #from ..explorers import blockchain
-from ..explorers import xchain
-from .base import BaseCoin
+from .bitcoin import Bitcoin
+# from ..explorers import xchain
+# from .base_coin import BaseCoin
+from ..explorers.xchain_block_explorer import XchainBlockExplorer
 
 
-class Counterparty(BaseCoin):
+class Counterparty(Bitcoin):
     coin_symbol = "XCP"
     display_name = "Counterparty"
     segwit_supported = False # currently, use legacy
     magicbyte = 0
     script_magicbyte = 5
     segwit_hrp = "bc"
-    
+    use_compressed_addr = True
     supports_nft= True
     supports_token= True
-    explorer = xchain
-    nft_explorer= xchain
+    explorer = XchainBlockExplorer(coin_symbol, apikeys={})  # xchain
+    #nft_explorer= xchain
     
     client_kwargs = {
         'server_file': 'bitcoin.json',

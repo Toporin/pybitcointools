@@ -1,6 +1,7 @@
 import requests
 from .utils import parse_addr_args
 
+# todo: deprecate & use XchainBlockExplorer class
 # api: https://xchain.io/api#intro
 
 def get_url(coin_symbol="XCP"):
@@ -123,9 +124,9 @@ def get_nft_info(contract:str, tokenid:str, coin_symbol:str="XCP", apikeys={}):
         nft_info["nft_name"]= contract
         nft_info["asset_id"]= res.get("asset_id", 0)
         nft_info["asset_longname"]= res.get("asset_longname", "")
-        nft_info["divisible"]= str(res.get("divisible", "(unknonw)"))
-        nft_info["locked"]= str(res.get("locked",  "(unknonw)"))
-        nft_info["supply"]= str(res.get("supply",  "(unknonw)"))
+        nft_info["divisible"]= str(res.get("divisible", "(unknown)"))
+        nft_info["locked"]= str(res.get("locked",  "(unknown)"))
+        nft_info["supply"]= str(res.get("supply",  "(unknown)"))
         nft_info["description"]= res.get("description", "")
         
         details= ("Divisible: " + nft_info["divisible"] + "\n" 

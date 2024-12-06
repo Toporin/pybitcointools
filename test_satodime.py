@@ -1,9 +1,18 @@
 import unittest
-from pycryptotools import *
 
 import hashlib
 import base58
 import binascii
+
+from pycryptotools import Counterparty, XchainBlockExplorer
+from pycryptotools.coins.bitcoin import Bitcoin
+from pycryptotools.coins.bitcoin_cash import BitcoinCash
+from pycryptotools.coins.dash import Dash
+from pycryptotools.coins.dogecoin import Doge
+from pycryptotools.coins.ethereum import Ethereum
+from pycryptotools.coins.litecoin import Litecoin
+from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+
 
 # test functions specifically used by SatodimeTool
 # test vectors made with https://iancoleman.io/bip39/
@@ -54,19 +63,18 @@ PRIVKEY_WIF_BTC= [
 
 class BitcoinCase(unittest.TestCase):
     
-    coin= Bitcoin(testnet= False)
+    coin= Bitcoin(testnet=False)
     
     @classmethod
     def setUpClass(cls):
         print(f'Starting {cls.coin.display_name} test') 
-        
-        
+
     def test_address(self):
         
-        self.assertEqual( self.coin.display_name, "Bitcoin")
-        self.assertEqual( self.coin.coin_symbol, "BTC")
-        self.assertEqual( self.coin.segwit_supported, True)
-        self.assertEqual( self.coin.use_compressed_addr, True)
+        self.assertEqual(self.coin.display_name, "Bitcoin")
+        self.assertEqual(self.coin.coin_symbol, "BTC")
+        self.assertEqual(self.coin.segwit_supported, True)
+        self.assertEqual(self.coin.use_compressed_addr, True)
         PUBKEY= PUBKEY_BTC
         ADDRESS= ADDRESS_BTC
         PRIVKEY_WIF= PRIVKEY_WIF_BTC
@@ -99,6 +107,60 @@ class BitcoinCase(unittest.TestCase):
             #url
             url= self.coin.address_weburl(addr)
             print(f"URL= {url}")
+
+### COUNTERPARTY ###
+ADDRESS_XCP_EXPLORER= [
+    "1Do5kUZrTyZyoPJKtk4wCuXBkt5BDRhQJ4",
+]
+
+
+class CounterpartyCase(unittest.TestCase):
+
+    coin = Counterparty(testnet=False)
+    explorer = XchainBlockExplorer(coin.coin_symbol, {})
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_address(self):
+
+        self.assertEqual(self.coin.display_name, "Counterparty")
+        self.assertEqual(self.coin.coin_symbol, "XCP")
+        self.assertEqual(self.coin.segwit_supported, False)
+        self.assertEqual(self.coin.use_compressed_addr, True)
+        PUBKEY = PUBKEY_BTC
+        PRIVKEY_WIF = PRIVKEY_WIF_BTC
+
+        for i, pubkey_hex in enumerate(PUBKEY):
+
+            # pub_bytes= bytes.fromhex(pubkey_hex)
+            pubkey_bytes = bytes.fromhex(pubkey_hex)
+            addr = self.coin.pubtoaddr(pubkey_bytes)
+            self.assertEqual(addr, ADDRESS_BTC[i])
+
+            privkey_hex = wif2priv(PRIVKEY_WIF[i])
+            privkey_list = list(bytes.fromhex(privkey_hex))
+            if self.coin.use_compressed_addr:
+                privkey_wif = self.coin.encode_privkey(privkey_list, 'wif_compressed')
+                self.assertEqual(privkey_wif, PRIVKEY_WIF[i])
+            else:
+                privkey_wif = self.coin.encode_privkey(privkey_list, 'wif')
+                self.assertEqual(privkey_wif, PRIVKEY_WIF[i])
+
+    def test_explorer(self):
+
+        try:
+            for addr in ADDRESS_XCP_EXPLORER:
+                coin_info = self.explorer.get_coin_info(addr)
+                print(f"TEST XCP addr: {addr}")
+                print(f"TEST XCP coin_info: {coin_info}")
+                asset_list = self.explorer.get_asset_list(addr)
+                print(f"TEST XCP asset_list size: {len(asset_list)}")
+                print(f"TEST XCP asset_list: {asset_list}")
+        except Exception as ex:
+            self.fail(f"test_explorer() raised exception: {str(ex)}")
+
 
 ### TESTNET BTC ####
 
@@ -615,11 +677,21 @@ PRIVKEY_ETH=[
 "0x9b55672fd34e5d0b597fe801910c23186e6f8b03443ddeb5b6a4652a089637ff",
 ]
 PRIVKEY_WIF_ETH=[] # not used in ETH?
+
+ADDRESS_ETH_EXPLORER=[ # testing block explorer
+"0xd5b06c8c83e78e92747d12a11fcd0b03002d48cf",
+"0x86b4d38e451c707e4914ffceab9479e3a8685f98",
+"0xE71a126D41d167Ce3CA048cCce3F61Fa83274535", # cryptopunk
+"0xed1bf53Ea7fD8a290A3172B6c00F1Fb3657D538F", # usdt
+"0x2c4ebd4b21736e992f3efeb55de37ae66457199d", # grolex nft
+]
+
 class EthereumCase(unittest.TestCase):
     
     # ALso work for ETC, BSC and other Ethereum forks
-    coin= Ethereum(testnet= False)
-    
+    coin = Ethereum(testnet= False)
+    explorer = BlockscoutExplorer(coin.coin_symbol, {})
+
     @classmethod
     def setUpClass(cls):
         print(f'Starting {cls.coin.display_name} test') 
@@ -674,7 +746,18 @@ class EthereumCase(unittest.TestCase):
             url= self.coin.address_weburl(addr)
             print(f"URL= {url}")
 
+    def test_explorer(self):
 
+        try:
+           for addr in ADDRESS_ETH_EXPLORER:
+                coin_info = self.explorer.get_coin_info(addr)
+                print(f"TEST ETH addr: {addr}")
+                print(f"TEST ETH coin_info: {coin_info}")
+                asset_list = self.explorer.get_asset_list(addr)
+                print(f"TEST ETH asset_list size: {len(asset_list)}")
+                print(f"TEST ETH asset_list: {asset_list}")
+        except Exception as ex:
+            self.fail(f"test_explorer() raised exception: {str(ex)}")
 
 # PUBKEY_=[]
 # ADDRESS_=[]
