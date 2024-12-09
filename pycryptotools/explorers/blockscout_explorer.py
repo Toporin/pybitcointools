@@ -1,20 +1,18 @@
 import json
-from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Union, Any
-import aiohttp
 import requests
 
+from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
-from pycryptotools.explorers.base_explorer import BaseExplorer
 from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
 
 
-class BlockscoutExplorer(BaseExplorer):
+class BlockscoutExplorer(BlockExplorer):
 
-    def __init__(self, coin_symbol: str, apikeys: Dict[str, str]):
-        super().__init__(coin_symbol, apikeys)
+    def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
+        super().__init__(coin, apikeys)
 
     """Utilities"""
 
@@ -33,18 +31,18 @@ class BlockscoutExplorer(BaseExplorer):
 
     def get_api_url(self) -> str:
         """Get base API URL based on coin symbol"""
-        url = self.get_web_url() + "/api/v2/"
+        url = self.get_web_url() + "api/v2/"
         return url
 
-    def get_address_web_link(self, addr: str) -> str:
+    def get_address_web_url(self, addr: str) -> str:
         """Get web link for an address"""
         return f"{self.get_web_url()}address/{addr}"
 
-    def get_token_web_link(self, contract: str) -> str:
+    def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
         return f"{self.get_web_url()}token/{contract}"
 
-    def get_nft_web_link(self, contract: str, tokenid: str) -> str:
+    def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """Get web link for a token"""
         return f"{self.get_web_url()}token/{contract}/instance/{tokenid}"
 
@@ -64,25 +62,11 @@ class BlockscoutExplorer(BaseExplorer):
         data = response.json()
         coin_info = self.parse_coin_info_json(data)
         coin_info['symbol'] = self.coin_symbol
-        coin_info['name'] = self.coin_symbol  # todo name
+        coin_info['name'] = self.coin.display_name
         coin_info['type'] = AssetType.COIN
-        coin_info['address_explorer_url'] = self.get_address_web_link(addr)
+        coin_info['address_explorer_url'] = self.get_address_web_url(addr)
         print(f"coin_info: {coin_info}")
         return coin_info
-
-        # async with aiohttp.ClientSession() as session:
-        #     async with session.get(url) as response:
-        #         if response.status != 200:
-        #             raise DataFetcherError(DataFetcherError.INVALID_URL)
-        #
-        #         data = await response.json()
-        #         coin_info = self.parse_coin_info_json(data)
-        #         coin_info['symbol'] = self.coin_symbol
-        #         coin_info['name'] = self.coin_symbol # todo name
-        #         coin_info['type'] = AssetType.COIN
-        #         print(f"coin_info: {coin_info}")
-        #         return coin_info
-
 
     def get_asset_list(self, addr):
         """Get asset info for an address"""
@@ -101,17 +85,6 @@ class BlockscoutExplorer(BaseExplorer):
         asset_list = self.parse_asset_list_json(addr, data)
         print(f"asset_list: {asset_list}")
         return asset_list
-
-        # async with aiohttp.ClientSession() as session:
-        #     async with session.get(url) as response:
-        #         if response.status != 200:
-        #             raise DataFetcherError(DataFetcherError.INVALID_URL)
-        #
-        #         data = await response.json()
-        #         asset_list = self.parse_asset_list_json(addr, data)
-        #         print(f"asset_list: {asset_list}")
-        #         return asset_list
-
 
     """Parsers"""
 
@@ -143,53 +116,6 @@ class BlockscoutExplorer(BaseExplorer):
             parsed_data['exchange_rate'] = data.get('exchange_rate'),
             parsed_data['currency'] = data.get('USD'),
             parsed_data['ens_domain'] = data.get('ens_domain_name')
-
-
-            # Build parsed dictionary with formatted data
-            # full_parsed_data = {
-            #     # Basic information
-            #     'address': {
-            #         'hash': data.get('hash'),
-            #         'ens_domain': data.get('ens_domain_name'),
-            #     },
-            #
-            #     # Balance information
-            #     'balance': {
-            #         'wei': coin_balance_wei,
-            #         'ether': coin_balance_eth,
-            #         'last_updated_block': data.get('block_number_balance_updated_at'),
-            #         'exchange_rate_usd': data.get('exchange_rate'),
-            #     },
-            #
-            #     # Address properties
-            #     'properties': {
-            #         'is_contract': data.get('is_contract', False),
-            #         'is_verified': data.get('is_verified', False),
-            #         'is_scam': data.get('is_scam', False),
-            #     },
-            #
-            #     # Blockchain activity
-            #     'activity': {
-            #         'has_tokens': data.get('has_tokens', False),
-            #         'has_token_transfers': data.get('has_token_transfers', False),
-            #         'has_validated_blocks': data.get('has_validated_blocks', False),
-            #         'has_beacon_chain_withdrawals': data.get('has_beacon_chain_withdrawals', False),
-            #         'has_logs': data.get('has_logs', False),
-            #     },
-            #
-            #     # Creation details
-            #     'creation': {
-            #         'transaction_hash': data.get('creation_transaction_hash') or data.get('creation_tx_hash'),
-            #         'creator_address': data.get('creator_address_hash'),
-            #     },
-            #
-            #     # Tags and metadata
-            #     'tags': {
-            #         'public': data.get('public_tags', []),
-            #         'private': data.get('private_tags', []),
-            #         'watchlist': data.get('watchlist_names', []),
-            #     }
-            # }
 
             return parsed_data
 
@@ -233,12 +159,12 @@ class BlockscoutExplorer(BaseExplorer):
             if isinstance(nft, Dict):
                 asset['tokenid'] = nft.get('id', "")
                 asset['nft_image_url'] = nft.get('image_url', "")
-                asset['nft_explorer_url'] = self.get_nft_web_link(asset.get("contract"), asset.get("tokenid"))
+                asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
 
             asset_list += [asset]
 
             # explorer links
-            asset['token_explorer_url'] = self.get_token_web_link(asset.get("contract"))
-            asset['address_explorer_url'] = self.get_address_web_link(addr)
+            asset['token_explorer_url'] = self.get_token_web_url(asset.get("contract"))
+            asset['address_explorer_url'] = self.get_address_web_url(addr)
 
         return asset_list

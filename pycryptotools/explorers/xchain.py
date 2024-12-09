@@ -16,7 +16,7 @@ def get_url(coin_symbol="XCP"):
     else:  
         return "https://notfound.org/"
 
-def address_weburl(addr, coin_symbol="XCP", apikeys={}):
+def get_address_web_url(addr, coin_symbol="XCP", apikeys={}):
     base_url = get_url(coin_symbol)
     return base_url + "address/" + addr
 

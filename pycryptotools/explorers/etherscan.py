@@ -11,7 +11,7 @@ address_url = "%s/address/%s"
 
 headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'}
 
-def address_weburl(addr, coin_symbol="ETH", apikeys={}):
+def get_address_web_url(addr, coin_symbol="ETH", apikeys={}):
     if coin_symbol == "ETH":
         return "https://etherscan.io/address/"+addr 
     return "https://ropsten.etherscan.io/address/"+addr

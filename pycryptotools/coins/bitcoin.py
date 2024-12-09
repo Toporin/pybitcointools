@@ -3,16 +3,18 @@ import re
 
 from .. import compress, pubtolegacy, electrum_pubkey, output_script_to_address, bin_to_b58check, \
     hex_to_b58check, hash160, segwit_addr, mk_p2w_scripthash_script, mk_scripthash_script, mk_pubkey_script, \
-    mk_p2wpkh_script, privtopub, pubkey_to_hash, bin_sha256, safe_from_hex, mk_multisig_script, SIGHASH_ALL
+    mk_p2wpkh_script, privtopub, pubkey_to_hash, bin_sha256, safe_from_hex, mk_multisig_script, SIGHASH_ALL, \
+    magicbyte_to_prefix
 from ..explorers import blockstream
 from .base_coin import BaseCoin
+from ..explorers.blockstream_explorer import BlockstreamExplorer
+from ..explorers.coingate_price_explorer import Coingate
 
 
 class Bitcoin(BaseCoin):
     coin_symbol = "BTC"
     display_name = "Bitcoin"
     segwit_supported = True
-    explorer = blockstream #blockchain
     magicbyte = 0
     script_magicbyte = 5
     segwit_hrp = "bc"
@@ -48,6 +50,15 @@ class Bitcoin(BaseCoin):
             'p2wsh': 0x2aa7ed3
         },
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        if self.script_magicbyte:
+            self.script_prefixes = magicbyte_to_prefix(magicbyte=self.script_magicbyte)
+        else:
+            self.script_prefixes = ()
+        self.explorers = [BlockstreamExplorer(self, self.apikeys)]
+        self.price_explorers = [Coingate(self, self.apikeys)]
 
     ######################################
     #           KEY  &  ADDRESS          #

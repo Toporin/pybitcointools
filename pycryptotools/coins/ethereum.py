@@ -1,21 +1,23 @@
-#from ..explorers import blockchain
-from ..explorers import etherscan
-from ..explorers import rarible
-from ..explorers import opensea
-from .base_coin import BaseCoin
-
 #from eth_utils import keccak
 from eth_hash.auto import keccak
+
+#from ..explorers import blockchain
+# from ..explorers import etherscan
+# from ..explorers import rarible
+#from ..explorers import opensea
+from pycryptotools.coins.base_coin import BaseCoin
+from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+
 
 class Ethereum(BaseCoin):
     coin_symbol = "ETH"
     display_name = "Ethereum"
     segwit_supported = False
-    use_compressed_addr= False
+    use_compressed_addr = False
     magicbyte = 0
     script_magicbyte = 5
-    explorer = etherscan
-    nft_explorer= rarible #opensea # rarible # 
+    #explorer = etherscan
+    #nft_explorer= rarible #opensea # rarible #
     nft_supported= True
     
     testnet_overrides = {
@@ -40,7 +42,12 @@ class Ethereum(BaseCoin):
             'p2wsh': 0x2aa7ed3
         },
     }
-    
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [BlockscoutExplorer(self, self.apikeys)]
+
+
     def pubtoaddr(self, pubkey:bytes)-> str:
         """
         Get address from a public key

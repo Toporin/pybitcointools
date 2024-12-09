@@ -1,6 +1,6 @@
-from ..explorers import bscscan
-from ..explorers import blockscout
-from .ethereum import Ethereum
+from pycryptotools.explorers import bscscan
+from pycryptotools.explorers import blockscout
+from pycryptotools.coins.ethereum import Ethereum
 
 class EthereumClassic(Ethereum):
     coin_symbol = "ETC"
@@ -12,7 +12,20 @@ class EthereumClassic(Ethereum):
         'coin_symbol': "ETCTEST",
         'magicbyte': 111,
     }
-    
+
+
+class Polygon(Ethereum):
+    coin_symbol = "POL"
+    display_name = "Polygon"
+    explorer = blockscout
+
+    testnet_overrides = {
+        'display_name': "Polygon testnet",
+        'coin_symbol': "POLTEST",
+        'magicbyte': 111,
+    }
+
+
 class BinanceSmartChain(Ethereum):
     coin_symbol = "BSC"
     display_name = "Binance Smart Chain"

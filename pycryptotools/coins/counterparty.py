@@ -1,8 +1,5 @@
-#from ..explorers import blockchain
 from .bitcoin import Bitcoin
-# from ..explorers import xchain
-# from .base_coin import BaseCoin
-from ..explorers.xchain_block_explorer import XchainBlockExplorer
+from pycryptotools.explorers.xchain_block_explorer import XchainBlockExplorer
 
 
 class Counterparty(Bitcoin):
@@ -15,7 +12,7 @@ class Counterparty(Bitcoin):
     use_compressed_addr = True
     supports_nft= True
     supports_token= True
-    explorer = XchainBlockExplorer(coin_symbol, apikeys={})  # xchain
+
     #nft_explorer= xchain
     
     client_kwargs = {
@@ -48,3 +45,7 @@ class Counterparty(Bitcoin):
             'p2wsh': 0x2aa7ed3
         },
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [XchainBlockExplorer(self, self.apikeys)]  # xchain

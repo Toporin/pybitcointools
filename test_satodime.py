@@ -1,10 +1,10 @@
 import unittest
-
-import hashlib
+from typing import List
 import base58
-import binascii
 
-from pycryptotools import Counterparty, XchainBlockExplorer
+from pycryptotools.coins.base_coin import BaseCoin
+from pycryptotools.coins.counterparty import Counterparty
+from pycryptotools.coins.ethereum_forks import EthereumClassic, Polygon
 from pycryptotools.coins.bitcoin import Bitcoin
 from pycryptotools.coins.bitcoin_cash import BitcoinCash
 from pycryptotools.coins.dash import Dash
@@ -12,6 +12,7 @@ from pycryptotools.coins.dogecoin import Doge
 from pycryptotools.coins.ethereum import Ethereum
 from pycryptotools.coins.litecoin import Litecoin
 from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+from pycryptotools.explorers.xchain_block_explorer import XchainBlockExplorer
 
 
 # test functions specifically used by SatodimeTool
@@ -29,6 +30,20 @@ def wif2priv(private_key_WIF):
         private_key= private_key[0:-2] # remove compression byte
     #print(private_key)
     return private_key # return a hex
+
+def test_explorer(coin: BaseCoin, addrs: List[str]):
+    try:
+        print(f"TEST explorer for: {coin.coin_symbol}")
+        for addr in addrs:
+            print(f"TEST explorer addr: {addr}")
+            coin_info = coin.get_coin_info(addr)
+            print(f"TEST coin_info: {coin_info}")
+            asset_list = coin.get_asset_list(addr)
+            print(f"TEST asset_list size: {len(asset_list)}")
+            print(f"TEST asset_list: {asset_list}")
+    except Exception as ex:
+        print(f"test_explorer() raised exception: {str(ex)}")
+        raise
 
 ### BITCOIN ###
 
@@ -61,9 +76,14 @@ PRIVKEY_WIF_BTC= [
     "KxF9SWjzRygz8DP32RdPhak19aMruJiFBYyavcMXRqQT3rr2n41w",
 ]
 
+ADDRESS_BTC_EXPLORER = [  # testing block explorer
+"bc1ql49ydapnjafl5t2cp9zqpjwe6pdgmxy98859v2" # some whale
+]
+
+
 class BitcoinCase(unittest.TestCase):
     
-    coin= Bitcoin(testnet=False)
+    coin = Bitcoin(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -105,19 +125,20 @@ class BitcoinCase(unittest.TestCase):
                 self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
 
-### COUNTERPARTY ###
-ADDRESS_XCP_EXPLORER= [
-    "1Do5kUZrTyZyoPJKtk4wCuXBkt5BDRhQJ4",
-]
-
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_BTC_EXPLORER)
 
 class CounterpartyCase(unittest.TestCase):
+    """  COUNTERPARTY  """
 
+    ADDRESS_XCP_EXPLORER = [
+        "1Do5kUZrTyZyoPJKtk4wCuXBkt5BDRhQJ4",
+    ]
     coin = Counterparty(testnet=False)
-    explorer = XchainBlockExplorer(coin.coin_symbol, {})
+    explorer = XchainBlockExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -149,17 +170,8 @@ class CounterpartyCase(unittest.TestCase):
                 self.assertEqual(privkey_wif, PRIVKEY_WIF[i])
 
     def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_XCP_EXPLORER)
 
-        try:
-            for addr in ADDRESS_XCP_EXPLORER:
-                coin_info = self.explorer.get_coin_info(addr)
-                print(f"TEST XCP addr: {addr}")
-                print(f"TEST XCP coin_info: {coin_info}")
-                asset_list = self.explorer.get_asset_list(addr)
-                print(f"TEST XCP asset_list size: {len(asset_list)}")
-                print(f"TEST XCP asset_list: {asset_list}")
-        except Exception as ex:
-            self.fail(f"test_explorer() raised exception: {str(ex)}")
 
 
 ### TESTNET BTC ####
@@ -173,7 +185,7 @@ PUBKEY_BTCTEST=[
 ]
 
 ADDRESS_BTCTEST= [
-     "mpinvcSCUmojQm64yDJzqfXg5NSuDCNX5k",
+    "mpinvcSCUmojQm64yDJzqfXg5NSuDCNX5k",
     "mgAYcUwkxyXq1N5crAXEcikty78ey2vBvt",
     "mghgGiTJkeJmpUyGX42QtVRFN95wnoWHxV",
     "mzRVdJPhiVVFFcr7vZv5spjgTKdk1HUh5E",
@@ -194,6 +206,11 @@ PRIVKEY_WIF_BTCTEST=[
     "cSdfwpP9djT15W6XdxdvWyjqGPk3C1a38hZucUTx1pjNMKjeaJFp",
     "cQLHgHLBxdtePeXeBUhYj5rPs3CVP7GKMdQ4JmMHvz6DfjkhtWUo",
     "cUpjKR37hJX3tnkKN8Ui1stxFKp1LK8BUf1bEevFy5fwhervSfBi",
+]
+
+ADDRESS_BTCTEST_EXPLORER =[
+    "mxufU2tFwZgUCF2LhUP8BRN8brtCKNoqx3", # legacy
+    "tb1qm6juaswhsmdl4w4ezj7lqx5c6xdz7ct99weumg" # segwit
 ]
 
 class BitcoinTestCase(unittest.TestCase):
@@ -242,8 +259,11 @@ class BitcoinTestCase(unittest.TestCase):
                 self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
+
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_BTCTEST_EXPLORER)
 
 ### LITECOIN ###
 
@@ -275,9 +295,16 @@ PRIVKEY_WIF_LTC=[
     "T4EoWASE91AoELW3wCs4Z7wxFuaieHd99eHeSswBVyg21fRPrLpF",
     "T3svmt7X7wWsWTWQ6e7vSj7S14KVLQSkbsEZ7rrYNJdjLZSYpAAo",
 ]
+ADDRESS_LTC_EXPLORER=[
+    "MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS", # top account
+    "ltc1qr07zu594qf63xm7l7x6pu3a2v39m2z6hh5pp4t",
+    "LZEjckteAtWrugbsy9zU8VHEZ4iUiXo9Nm",
+]
+
+
 class LitecoinCase(unittest.TestCase):
     
-    coin= Litecoin(testnet= False)
+    coin = Litecoin(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -321,8 +348,11 @@ class LitecoinCase(unittest.TestCase):
                 self.assertEqual(addr_legacy, ADDRESS[i])
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
+
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_LTC_EXPLORER)
 
 ### LTCTEST ###
 
@@ -374,7 +404,7 @@ PRIVKEY_WIF_LTCTEST=[
 ]
 class LitecoinTestCase(unittest.TestCase):
     
-    coin= Litecoin(testnet= True)
+    coin = Litecoin(testnet=True)
     
     @classmethod
     def setUpClass(cls):
@@ -420,8 +450,11 @@ class LitecoinTestCase(unittest.TestCase):
                 #print(addr_segwit)
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
+
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_SEGWIT_LTCTEST)
 
 ### DOGE ###
 # using path: m/0/*
@@ -451,7 +484,7 @@ PRIVKEY_WIF_DOGE=[
 ]
 class DogeCase(unittest.TestCase):
     
-    coin= Doge(testnet= False)
+    coin = Doge(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -494,7 +527,7 @@ class DogeCase(unittest.TestCase):
                 #print(addr_segwit)
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
 
 
@@ -526,7 +559,7 @@ PRIVKEY_WIF_DASH=[
 
 class DashCase(unittest.TestCase):
     
-    coin= Dash(testnet= False)
+    coin = Dash(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -569,20 +602,20 @@ class DashCase(unittest.TestCase):
                 #print(addr_segwit)
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
 
 ### Bitcoin Cash ###
 
 # path: m/0/*
-PUBKEY_BCH=[
+PUBKEY_BCH = [
 "037f38c987d3e7ca6534b87588bc26c8c77739316c6af2b01ca5879c8d292472c2",
 "020649a9b59a1f986efed9320fe61f9b1ae217e35b37a71bfe166d695742987b6d",
 "0384c82879d42884922dfd3a9a1875730a6f642360fee8d28adb9f60c340713b85",
 "03c056e24e61951169616e6a8e019ff54849822d65b9d947361b6bf05203ad8d15",
 "02a931823029e1e305880d8bdc17f2a413c7c7cdc9eefffc4ace0777ef9d944977",
 ]
-ADDRESS_BCH=[
+ADDRESS_BCH = [
 "1Cr354KVskWhpFtEigcztiWaqvJi35Hrfn",
 "18y7pcKS3zLEByHtHVwqqep59jSUduumMR",
 "1KVpBLfQVQYQzm27uDvEL13HeDd9PWqzJ9",
@@ -590,24 +623,32 @@ ADDRESS_BCH=[
 "1BBSYAkhtNCZWrSSBZaQzwseEbH9YYXjeL",
 ]
 # TODO: move to cashaddress
-ADDRESS_BCH_CASHADDR=[
+ADDRESS_BCH_CASHADDR = [
 "bitcoincash:qzq77lnqvtk8afrsjr2qqcha39lhm4wcmq5e75xsrg",
 "bitcoincash:qptkth3meaxcwla5rgy4yxdqtck47ptt75k74y0y92",
 "bitcoincash:qr9w2jeq3qnn8k2ty7h8vvaa54lfelcjys05gczr8n",
 "bitcoincash:qzqfhr9dapn4qvgcufnulgu8lstk5zey2cdpepg8mg",
 "bitcoincash:qph640pg8rtdcf4wfys3ngfacpd9r7kt6vgrkfj820",
 ]
-ADDRESS_SEGWIT_BCH=[]
-PRIVKEY_WIF_BCH=[
+ADDRESS_SEGWIT_BCH = []
+PRIVKEY_WIF_BCH = [
 "L21CkkjKvmcWr5k9nEv5kYKD55QRFnU3D2q7T9QZQmqb1fz9N3e4",
 "Kz5BumoRSaovsfgPN13FsFp3jxjt2zmKtWfoWp2etF9Rp2adWVAP",
 "L2awcdfoabd43SzCJxcVmnSsewuazMFpfPhLMTreAqLuotcNBfYG",
 "L2dbLNq6UMCCvpCimw2nyCeAYG8HxAHmxAUTSQhzFemD1yzoaNiS",
 "L2RfBWTtdAGnTyLApZKWekgueyVh7twuJ9DxF3dkWYgj8WxC4JsW",
 ]
+ADDRESS_BCH_EXPLORER = [
+    "1PUwPCNqKiC6La8wtbJEAhnBvtc8gdw19h", # top accounts
+    "1P86nZCNWUiynP52AK2eTuTGZXYUTwX6qQ",
+    "qrmfkegyf83zh5kauzwgygf82sdahd5a55x9wse7ve",
+    "qre24q38ghy6k3pegpyvtxahu8q8hqmxmqqn28z85p",
+]
+
+
 class BitcoinCashCase(unittest.TestCase):
     
-    coin= BitcoinCash(testnet= False)
+    coin= BitcoinCash(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -649,48 +690,50 @@ class BitcoinCashCase(unittest.TestCase):
                 #print(addr_segwit)
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
-            
-### Ethereum ###
 
-PUBKEY_ETH=[
-"0x037f38c987d3e7ca6534b87588bc26c8c77739316c6af2b01ca5879c8d292472c2",
-"0x020649a9b59a1f986efed9320fe61f9b1ae217e35b37a71bfe166d695742987b6d",
-"0x0384c82879d42884922dfd3a9a1875730a6f642360fee8d28adb9f60c340713b85",
-"0x03c056e24e61951169616e6a8e019ff54849822d65b9d947361b6bf05203ad8d15",
-"0x02a931823029e1e305880d8bdc17f2a413c7c7cdc9eefffc4ace0777ef9d944977",
-]
-ADDRESS_ETH=[
-"0x83da5A7e7E02E88237a6AF11598e8322a12CCda1",
-"0x3273BcF2b748Ea196663Ae900B7Cf5C3a5b9B912",
-"0xb62990a87649B658D0f49158ed68Ab8921442354",
-"0xe2A7152113cC018EC24F88C67fC8CE1C47B989a5",
-"0xc29bB40B3265Fa3c0925B38916D1C0C92e54E5A4",
-]
-ADDRESS_SEGWIT_ETH=[]
-PRIVKEY_ETH=[
-"0x8ec0b10753bb2c7c8462f3328afb86bb45f2c766f8c2e2bc4fd93b13ae4732ea",
-"0x5520cfb01a87374da0989fcbe4d7b5fe99f262bb93ce8adfff4273a6e62ff127",
-"0xa01bfb418815a1c8063caa9503b4b6e60897b4c5d1deefc2fd61fc6ac0d61c6a",
-"0xa179055a8bba685407579bf8a1465bb52323095a5dde5ce6a6ff00720afeea27",
-"0x9b55672fd34e5d0b597fe801910c23186e6f8b03443ddeb5b6a4652a089637ff",
-]
-PRIVKEY_WIF_ETH=[] # not used in ETH?
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_BCH_EXPLORER)
 
-ADDRESS_ETH_EXPLORER=[ # testing block explorer
-"0xd5b06c8c83e78e92747d12a11fcd0b03002d48cf",
-"0x86b4d38e451c707e4914ffceab9479e3a8685f98",
-"0xE71a126D41d167Ce3CA048cCce3F61Fa83274535", # cryptopunk
-"0xed1bf53Ea7fD8a290A3172B6c00F1Fb3657D538F", # usdt
-"0x2c4ebd4b21736e992f3efeb55de37ae66457199d", # grolex nft
-]
 
 class EthereumCase(unittest.TestCase):
-    
-    # ALso work for ETC, BSC and other Ethereum forks
+    """ Ethereum """
+
+    PUBKEY_ETH = [
+        "0x037f38c987d3e7ca6534b87588bc26c8c77739316c6af2b01ca5879c8d292472c2",
+        "0x020649a9b59a1f986efed9320fe61f9b1ae217e35b37a71bfe166d695742987b6d",
+        "0x0384c82879d42884922dfd3a9a1875730a6f642360fee8d28adb9f60c340713b85",
+        "0x03c056e24e61951169616e6a8e019ff54849822d65b9d947361b6bf05203ad8d15",
+        "0x02a931823029e1e305880d8bdc17f2a413c7c7cdc9eefffc4ace0777ef9d944977",
+    ]
+    ADDRESS_ETH = [
+        "0x83da5A7e7E02E88237a6AF11598e8322a12CCda1",
+        "0x3273BcF2b748Ea196663Ae900B7Cf5C3a5b9B912",
+        "0xb62990a87649B658D0f49158ed68Ab8921442354",
+        "0xe2A7152113cC018EC24F88C67fC8CE1C47B989a5",
+        "0xc29bB40B3265Fa3c0925B38916D1C0C92e54E5A4",
+    ]
+    ADDRESS_SEGWIT_ETH = []
+    PRIVKEY_ETH = [
+        "0x8ec0b10753bb2c7c8462f3328afb86bb45f2c766f8c2e2bc4fd93b13ae4732ea",
+        "0x5520cfb01a87374da0989fcbe4d7b5fe99f262bb93ce8adfff4273a6e62ff127",
+        "0xa01bfb418815a1c8063caa9503b4b6e60897b4c5d1deefc2fd61fc6ac0d61c6a",
+        "0xa179055a8bba685407579bf8a1465bb52323095a5dde5ce6a6ff00720afeea27",
+        "0x9b55672fd34e5d0b597fe801910c23186e6f8b03443ddeb5b6a4652a089637ff",
+    ]
+    PRIVKEY_WIF_ETH = []  # not used in ETH?
+    ADDRESS_ETH_EXPLORER = [  # testing block explorer
+        "0xd5b06c8c83e78e92747d12a11fcd0b03002d48cf",
+        "0x86b4d38e451c707e4914ffceab9479e3a8685f98",
+        "0xE71a126D41d167Ce3CA048cCce3F61Fa83274535",  # cryptopunk
+        "0xed1bf53Ea7fD8a290A3172B6c00F1Fb3657D538F",  # usdt
+        "0x2c4ebd4b21736e992f3efeb55de37ae66457199d",  # grolex nft
+    ]
+
+    # Also work for ETC, BSC and other Ethereum forks
     coin = Ethereum(testnet= False)
-    explorer = BlockscoutExplorer(coin.coin_symbol, {})
+    explorer = BlockscoutExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -702,11 +745,11 @@ class EthereumCase(unittest.TestCase):
         self.assertEqual( self.coin.coin_symbol, "ETH")
         self.assertEqual( self.coin.segwit_supported, False)
         self.assertEqual( self.coin.use_compressed_addr, False)
-        PUBKEY= PUBKEY_ETH
-        ADDRESS= ADDRESS_ETH
-        PRIVKEY_WIF= PRIVKEY_WIF_ETH
-        PRIVKEY= PRIVKEY_ETH
-        ADDRESS_SEGWIT= ADDRESS_SEGWIT_ETH
+        PUBKEY= self.PUBKEY_ETH
+        ADDRESS= self.ADDRESS_ETH
+        PRIVKEY_WIF= self.PRIVKEY_WIF_ETH
+        PRIVKEY= self.PRIVKEY_ETH
+        ADDRESS_SEGWIT= self.ADDRESS_SEGWIT_ETH
         from pycryptotools.main import decompress
         
         for i, pubkey_hex in enumerate(PUBKEY):
@@ -743,21 +786,91 @@ class EthereumCase(unittest.TestCase):
             self.assertEqual(pubkey_hex, pubkey_hex2)
             
             #url
-            url= self.coin.address_weburl(addr)
+            url= self.coin.get_address_web_url(addr)
             print(f"URL= {url}")
 
     def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_ETH_EXPLORER)
 
-        try:
-           for addr in ADDRESS_ETH_EXPLORER:
-                coin_info = self.explorer.get_coin_info(addr)
-                print(f"TEST ETH addr: {addr}")
-                print(f"TEST ETH coin_info: {coin_info}")
-                asset_list = self.explorer.get_asset_list(addr)
-                print(f"TEST ETH asset_list size: {len(asset_list)}")
-                print(f"TEST ETH asset_list: {asset_list}")
-        except Exception as ex:
-            self.fail(f"test_explorer() raised exception: {str(ex)}")
+    # def test_explorer(self):
+    #
+    #     try:
+    #        for addr in self.ADDRESS_ETH_EXPLORER:
+    #             coin_info = self.explorer.get_coin_info(addr)
+    #             print(f"TEST ETH addr: {addr}")
+    #             print(f"TEST ETH coin_info: {coin_info}")
+    #             asset_list = self.explorer.get_asset_list(addr)
+    #             print(f"TEST ETH asset_list size: {len(asset_list)}")
+    #             print(f"TEST ETH asset_list: {asset_list}")
+    #     except Exception as ex:
+    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
+
+
+class EthereumClassicCase(unittest.TestCase):
+    """  Ethereum Classic  """
+
+    ADDRESS_ETC_EXPLORER = [  # testing block explorer
+        "0x13CDee29cAd8e11523095900e2195088Ed6d02Ad",  # top account (https://etc.blockscout.com/accounts)
+        "0x00cd5Bf5bFB8fd1d139eF486ce35B8dfc00aDE91",  # top account
+    ]
+    # ALso work for ETC, BSC and other Ethereum forks
+    coin = EthereumClassic(testnet=False)
+    explorer = BlockscoutExplorer(coin, {})
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_ETC_EXPLORER)
+
+    # def test_explorer(self):
+    #
+    #     try:
+    #         for addr in self.ADDRESS_ETC_EXPLORER:
+    #             coin_info = self.explorer.get_coin_info(addr)
+    #             print(f"TEST addr: {addr}")
+    #             print(f"TEST coin_info: {coin_info}")
+    #             asset_list = self.explorer.get_asset_list(addr)
+    #             print(f"TEST asset_list size: {len(asset_list)}")
+    #             print(f"TEST asset_list: {asset_list}")
+    #     except Exception as ex:
+    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
+
+
+class PolygonCase(unittest.TestCase):
+    """  Polygon  """
+
+    ADDRESS_POL_EXPLORER = [  # testing block explorer
+        "0x8db853Aa2f01AF401e10dd77657434536735aC62",
+        "0x86d22A8219De3683CF188778CDAdEE62D1442033",
+        "0xE976c3052Df18cc2Dc878b9bc3191Bba68Ef3d80",  # DolZ nft
+        "0x440D4955a914D5e29F861aC024A608aE41c56cB6",  # PookyBall nft contract
+        "0xd7f1cbca340c831d77c0d8d3dc843a07873ade44",  # PookyBall nft vault
+        "0xF977814e90dA44bFA03b6295A0616a897441aceC",  # Binance hot wallet with USDT
+    ]
+    coin = Polygon(testnet=False)
+    explorer = BlockscoutExplorer(coin, {})
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_POL_EXPLORER)
+
+    # def test_explorer(self):
+    #
+    #     try:
+    #         for addr in self.ADDRESS_POL_EXPLORER:
+    #             coin_info = self.explorer.get_coin_info(addr)
+    #             print(f"TEST addr: {addr}")
+    #             print(f"TEST coin_info: {coin_info}")
+    #             asset_list = self.explorer.get_asset_list(addr)
+    #             print(f"TEST asset_list size: {len(asset_list)}")
+    #             print(f"TEST asset_list: {asset_list}")
+    #     except Exception as ex:
+    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
 
 # PUBKEY_=[]
 # ADDRESS_=[]

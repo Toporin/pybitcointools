@@ -6,7 +6,7 @@ def get_url(coin_symbol):
         return "https://api.bscscan.com/api"
     return "https://api-testnet.bscscan.com/api"
   
-def address_weburl(addr, coin_symbol="BSC", apikeys={}):
+def get_address_web_url(addr, coin_symbol="BSC", apikeys={}):
     if coin_symbol == "BSC":
         return "https://bscscan.com/address/"+addr 
     return "https://testnet.bscscan.com/address/"+addr

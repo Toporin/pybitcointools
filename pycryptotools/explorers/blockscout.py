@@ -28,7 +28,7 @@ def get_url(coin_symbol):
         return "https://blockscout.com/etc/mainnet/api" #?
   
     # returns web link for browsing
-    def address_weburl(addr, coin_symbol="ETC", apikeys={}):
+    def get_address_web_url(addr, coin_symbol="ETC", apikeys={}):
         base_url= "https://blockscout.com/%s/%s/address/%s"
         if coin_symbol == "ETC":
             return base_url % (etc, mainnet, addr)

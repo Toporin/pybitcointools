@@ -1,64 +1,18 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Union, Any
-import aiohttp
-import json
 from decimal import Decimal
-
 import requests
 
+from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
 
 
-# class DataFetcherError(Exception):
-#     """Custom exception for data fetching errors"""
-#     INVALID_URL = "Invalid URL"
-#     MISSING_DATA = "Missing Data"
-#
-#
-# @dataclass
-# class ValueData:
-#     xcp: str = ""
-#     btc: str = ""
-#     usd: str = ""
-#
-#
-# @dataclass
-# class AssetData:
-#     asset: str = ""
-#     asset_longname: str = ""
-#     description: str = ""
-#     quantity: str = ""
-#     estimated_value: ValueData = field(default_factory=ValueData)
-#
-#
-# @dataclass
-# class JsonResponseBalance:
-#     xcp_balance: str
-#
-#
-# @dataclass
-# class JsonResponseTokenBalance:
-#     address: str
-#     data: List[AssetData]
-#     total: int
-
-
-# class XchainNftExplorer:
-#     def __init__(self, coin_symbol: str, api_keys: Dict[str, str]):
-#         self.coin_symbol = coin_symbol
-#         self.api_keys = api_keys
-#
-#     async def get_nft_info(self, contract: str, tokenid: str) -> Dict[str, str]:
-#         # Placeholder implementation
-#         return {"nftImageUrl": ""}
-
-
 class XchainBlockExplorer(BlockExplorer):
 
-        def __init__(self, coin_symbol: str, apikeys: Dict[str, str]):
-            super().__init__(coin_symbol, apikeys)
+        def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
+            super().__init__(coin, apikeys)
 
         def get_url(self) -> str:
             """Get base URL based on coin symbol"""
@@ -70,11 +24,11 @@ class XchainBlockExplorer(BlockExplorer):
             }
             return urls.get(self.coin_symbol, "https://notfound.org/")
 
-        def get_address_web_link(self, addr: str) -> str:
+        def get_address_web_url(self, addr: str) -> str:
             """Get web link for an address"""
             return f"{self.get_url()}address/{addr}"
 
-        def get_token_web_link(self, contract: str) -> str:
+        def get_token_web_url(self, contract: str) -> str:
             """Get web link for a token"""
             return f"{self.get_url()}asset/{contract}"
 
@@ -99,9 +53,9 @@ class XchainBlockExplorer(BlockExplorer):
 
             # add more info
             coin_info['symbol'] = self.coin_symbol
-            coin_info['name'] = self.coin_symbol  # todo name
+            coin_info['name'] = self.coin.display_name
             coin_info['type'] = AssetType.COIN
-            coin_info['address_explorer_url'] = self.get_address_web_link(addr)
+            coin_info['address_explorer_url'] = self.get_address_web_url(addr)
             print(f"coin_info: {coin_info}")
             return coin_info
 
@@ -170,12 +124,12 @@ class XchainBlockExplorer(BlockExplorer):
 
                 if asset.get('nft_image_url',""):
                     asset["type"] = AssetType.NFT
-                    asset["nft_explore_link"] = self.get_token_web_link(asset['name'])
+                    asset["nft_explore_link"] = self.get_token_web_url(asset['name'])
                 else:
                     asset["type"] = AssetType.TOKEN
-                    asset["token_explore_link"] = self.get_token_web_link(asset['name'])
+                    asset["token_explore_link"] = self.get_token_web_url(asset['name'])
 
-                asset["address_explore_url"] = self.get_address_web_link(addr)
+                asset["address_explore_url"] = self.get_address_web_url(addr)
 
                 # add to list
                 asset_list += [asset]
@@ -229,7 +183,7 @@ class XchainBlockExplorer(BlockExplorer):
         #                     "contract": item.asset,
         #                     "name": item.asset,
         #                     "type": "token",
-        #                     "tokenExplorerLink": self.get_token_web_link(item.asset)
+        #                     "tokenExplorerLink": self.get_token_web_url(item.asset)
         #                 }
         #
         #                 # Exchange rate calculation

@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
+from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.explorers.base_explorer import BaseExplorer
 
 
 class PriceExplorer(BaseExplorer):
-    def __init__(self, coin_symbol: str, is_testnet: bool, apikeys: Dict[str, str]):
+    def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
         """
         Initialize the PriceExplorer.
 
@@ -14,11 +15,10 @@ class PriceExplorer(BaseExplorer):
             is_testnet (bool): Flag to indicate if it's a testnet environment
             api_keys (Dict[str, str]): Dictionary of API keys
         """
-        super().__init__(coin_symbol, apikeys)
-        self.is_testnet = is_testnet
+        super().__init__(coin, apikeys)
 
     @abstractmethod
-    async def get_exchange_rate_between(self, coin: Optional[str] = None, other_coin: Optional[str] = None) -> float:
+    def get_exchange_rate_between(self, coin: Optional[str] = None, other_coin: Optional[str] = None) -> float:
         """
         Get exchange rate between two cryptocurrencies.
 

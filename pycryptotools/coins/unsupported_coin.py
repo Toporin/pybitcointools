@@ -48,7 +48,7 @@ class UnsupportedCoin(BaseCoin):
     def balance_token(self, addr:str, contract:str):
         return -1
         
-    def address_weburl(self, addr:str):
+    def get_address_web_url(self, addr:str):
         return ""
         
     def pubtoaddr(self, pubkey):

@@ -14,7 +14,7 @@ network_url = base_url + "get_info/%s"
 block_url = base_url + "block/%s/%s"
 balance_url= base_url + "get_address_balance/%s/%s" 
 
-def address_weburl(addr, coin_symbol="LTC", apikeys={}):
+def get_address_web_url(addr, coin_symbol="LTC", apikeys={}):
     web_url= "https://chain.so/address/%s/%s" % (coin_symbol, addr)
     return web_url
 

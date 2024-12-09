@@ -12,7 +12,7 @@ def get_url(coin_symbol):
 balance_url= "%s/electrumx/balance/%s"
 utxo_url= "%s/electrumx/utxos/%s"
 
-def address_weburl(addr, coin_symbol="BCH", apikeys={}):
+def get_address_web_url(addr, coin_symbol="BCH", apikeys={}):
     # address in cashaddress format such as bchtest:qps822p04zpg676v6krnwhjhtqx44klcvqjrg353rc
     if coin_symbol=="BCH":
         web_url= "https://www.blockchain.com/bch/address/%s" % (addr)

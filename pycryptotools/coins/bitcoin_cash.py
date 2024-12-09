@@ -1,5 +1,7 @@
 from .base_coin import BaseCoin
 from .bitcoin import Bitcoin
+from ..explorers.coingate_price_explorer import Coingate
+from ..explorers.fullstack_explorer import FullstackExplorer
 from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
 from ..explorers import fullstack #blockdozer
 
@@ -33,6 +35,8 @@ class BitcoinCash(Bitcoin):
     def __init__(self, testnet=False, legacy=False, **kwargs):
         super(BitcoinCash, self).__init__(testnet=testnet, **kwargs)
         self.hd_path = 0 if legacy and testnet else self.hd_path
+        self.explorers = [FullstackExplorer(self, self.apikeys)]
+        self.price_explorers = [Coingate(self, self.apikeys)]
         
     def pubtoaddr(self, pubkey):
         """

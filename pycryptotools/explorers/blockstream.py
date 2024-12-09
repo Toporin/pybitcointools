@@ -9,7 +9,7 @@ def get_url(coin_symbol):
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
 
-def address_weburl(addr, coin_symbol="BTC", apikeys={}):
+def get_address_web_url(addr, coin_symbol="BTC", apikeys={}):
     if coin_symbol == "BTC":
         return "https://blockstream.info/address/"+addr
     return "https://blockstream.info/testnet/address/"+addr

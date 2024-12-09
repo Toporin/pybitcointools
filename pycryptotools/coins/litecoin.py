@@ -1,5 +1,7 @@
 from .bitcoin import Bitcoin
 from ..explorers import sochain
+from ..explorers.coingate_price_explorer import Coingate
+from ..explorers.litecoinspace_explorer import LitecoinspaceExplorer
 
 
 class Litecoin(Bitcoin):
@@ -25,3 +27,8 @@ class Litecoin(Bitcoin):
         'xpriv_prefix': 0x04358394,
         'xpub_prefix': 0x043587cf
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [LitecoinspaceExplorer(self, self.apikeys)]
+        self.price_explorers = [Coingate(self, self.apikeys)]

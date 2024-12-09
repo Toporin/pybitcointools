@@ -16,7 +16,7 @@ class NftExplorer(BaseExplorer):
         super().__init__(coin_symbol, apikeys)
 
     @abstractmethod
-    def get_nft_owner_web_link(self, addr: str) -> str:
+    def get_nft_owner_web_url(self, addr: str) -> str:
         """
         Get the web link for an NFT owner.
 
@@ -29,7 +29,7 @@ class NftExplorer(BaseExplorer):
         pass
 
     @abstractmethod
-    def get_nft_web_link(self, contract: str, tokenid: str) -> str:
+    def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """
         Get the web link for a specific NFT.
 
