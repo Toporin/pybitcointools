@@ -1,6 +1,4 @@
 from .bitcoin import Bitcoin
-from ..explorers import sochain
-
 
 class Dash(Bitcoin):
     coin_symbol = "DASH"
@@ -10,7 +8,6 @@ class Dash(Bitcoin):
     script_magicbyte = 16
     wif_prefix = 0xcc
     hd_path = 5
-    explorer = sochain
     testnet_overrides = {
         'display_name': "Dash Testnet",
         'coin_symbol': "DASHTEST",

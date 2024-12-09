@@ -1,6 +1,4 @@
 from .bitcoin import Bitcoin
-from ..explorers import sochain
-
 
 class Doge(Bitcoin):
     coin_symbol = "DOGE"
@@ -10,7 +8,6 @@ class Doge(Bitcoin):
     script_magicbyte = 22
     wif_prefix = 0x9e
     hd_path = 3
-    explorer = sochain
     xpriv_prefix = 0x02facafd
     xpub_prefix = 0x02fac398
     testnet_overrides = {

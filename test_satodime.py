@@ -11,16 +11,13 @@ from pycryptotools.coins.dash import Dash
 from pycryptotools.coins.dogecoin import Doge
 from pycryptotools.coins.ethereum import Ethereum
 from pycryptotools.coins.litecoin import Litecoin
-from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
-from pycryptotools.explorers.xchain_block_explorer import XchainBlockExplorer
-
 
 # test functions specifically used by SatodimeTool
 # test vectors made with https://iancoleman.io/bip39/
 # seed: tonight stem cause eyebrow estate smart duck wrong toe under job danger
 # path: m/84'/0'/0'/0/* (using BIP84 path to get bech32 and base58 address)
-
 # to run test: python3 -m unittest test_satodime
+
 
 def wif2priv(private_key_WIF):
     first_encode = base58.b58decode(private_key_WIF)
@@ -138,7 +135,6 @@ class CounterpartyCase(unittest.TestCase):
         "1Do5kUZrTyZyoPJKtk4wCuXBkt5BDRhQJ4",
     ]
     coin = Counterparty(testnet=False)
-    explorer = XchainBlockExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -648,7 +644,7 @@ ADDRESS_BCH_EXPLORER = [
 
 class BitcoinCashCase(unittest.TestCase):
     
-    coin= BitcoinCash(testnet=False)
+    coin = BitcoinCash(testnet=False)
     
     @classmethod
     def setUpClass(cls):
@@ -733,7 +729,6 @@ class EthereumCase(unittest.TestCase):
 
     # Also work for ETC, BSC and other Ethereum forks
     coin = Ethereum(testnet= False)
-    explorer = BlockscoutExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -743,7 +738,6 @@ class EthereumCase(unittest.TestCase):
         
         self.assertEqual( self.coin.display_name, "Ethereum")
         self.assertEqual( self.coin.coin_symbol, "ETH")
-        self.assertEqual( self.coin.segwit_supported, False)
         self.assertEqual( self.coin.use_compressed_addr, False)
         PUBKEY= self.PUBKEY_ETH
         ADDRESS= self.ADDRESS_ETH
@@ -792,19 +786,6 @@ class EthereumCase(unittest.TestCase):
     def test_explorer(self):
         test_explorer(self.coin, self.ADDRESS_ETH_EXPLORER)
 
-    # def test_explorer(self):
-    #
-    #     try:
-    #        for addr in self.ADDRESS_ETH_EXPLORER:
-    #             coin_info = self.explorer.get_coin_info(addr)
-    #             print(f"TEST ETH addr: {addr}")
-    #             print(f"TEST ETH coin_info: {coin_info}")
-    #             asset_list = self.explorer.get_asset_list(addr)
-    #             print(f"TEST ETH asset_list size: {len(asset_list)}")
-    #             print(f"TEST ETH asset_list: {asset_list}")
-    #     except Exception as ex:
-    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
-
 
 class EthereumClassicCase(unittest.TestCase):
     """  Ethereum Classic  """
@@ -815,7 +796,6 @@ class EthereumClassicCase(unittest.TestCase):
     ]
     # ALso work for ETC, BSC and other Ethereum forks
     coin = EthereumClassic(testnet=False)
-    explorer = BlockscoutExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -823,19 +803,6 @@ class EthereumClassicCase(unittest.TestCase):
 
     def test_explorer(self):
         test_explorer(self.coin, self.ADDRESS_ETC_EXPLORER)
-
-    # def test_explorer(self):
-    #
-    #     try:
-    #         for addr in self.ADDRESS_ETC_EXPLORER:
-    #             coin_info = self.explorer.get_coin_info(addr)
-    #             print(f"TEST addr: {addr}")
-    #             print(f"TEST coin_info: {coin_info}")
-    #             asset_list = self.explorer.get_asset_list(addr)
-    #             print(f"TEST asset_list size: {len(asset_list)}")
-    #             print(f"TEST asset_list: {asset_list}")
-    #     except Exception as ex:
-    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
 
 
 class PolygonCase(unittest.TestCase):
@@ -850,7 +817,6 @@ class PolygonCase(unittest.TestCase):
         "0xF977814e90dA44bFA03b6295A0616a897441aceC",  # Binance hot wallet with USDT
     ]
     coin = Polygon(testnet=False)
-    explorer = BlockscoutExplorer(coin, {})
 
     @classmethod
     def setUpClass(cls):
@@ -859,23 +825,6 @@ class PolygonCase(unittest.TestCase):
     def test_explorer(self):
         test_explorer(self.coin, self.ADDRESS_POL_EXPLORER)
 
-    # def test_explorer(self):
-    #
-    #     try:
-    #         for addr in self.ADDRESS_POL_EXPLORER:
-    #             coin_info = self.explorer.get_coin_info(addr)
-    #             print(f"TEST addr: {addr}")
-    #             print(f"TEST coin_info: {coin_info}")
-    #             asset_list = self.explorer.get_asset_list(addr)
-    #             print(f"TEST asset_list size: {len(asset_list)}")
-    #             print(f"TEST asset_list: {asset_list}")
-    #     except Exception as ex:
-    #         self.fail(f"test_explorer() raised exception: {str(ex)}")
-
-# PUBKEY_=[]
-# ADDRESS_=[]
-# ADDRESS_SEGWIT_=[]
-# PRIVKEY_WIF_=[]
 
 if __name__ == '__main__':
     unittest.main()

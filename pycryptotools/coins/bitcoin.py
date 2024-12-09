@@ -5,7 +5,6 @@ from .. import compress, pubtolegacy, electrum_pubkey, output_script_to_address,
     hex_to_b58check, hash160, segwit_addr, mk_p2w_scripthash_script, mk_scripthash_script, mk_pubkey_script, \
     mk_p2wpkh_script, privtopub, pubkey_to_hash, bin_sha256, safe_from_hex, mk_multisig_script, SIGHASH_ALL, \
     magicbyte_to_prefix
-from ..explorers import blockstream
 from .base_coin import BaseCoin
 from ..explorers.blockstream_explorer import BlockstreamExplorer
 from ..explorers.coingate_price_explorer import Coingate

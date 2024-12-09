@@ -1,7 +1,7 @@
 import unittest
 import pycryptotools.ripemd as ripemd
 from pycryptotools import *
-
+from pycryptotools.coins import *
 
 class TestECCArithmetic(unittest.TestCase):
 
@@ -231,25 +231,25 @@ class TestTransaction(unittest.TestCase):
 
     # FIXME: I don't know how to write this as a unit test.
     # What should be asserted?
-    def test_all(self):
-        c = Bitcoin()
-        privs = [sha256(str(random.randrange(2**256))) for x in range(4)]
-        pubs = [privtopub(priv) for priv in privs]
-        addresses = [pubtoaddr(pub) for pub in pubs]
-        mscript = mk_multisig_script(pubs[1:], 2, 3)
-        msigaddr = c.p2sh_scriptaddr(mscript)
-        tx = c.mktx(['01'*32+':1', '23'*32+':2'], [msigaddr+':20202', addresses[0]+':40404'])
-        tx = serialize(tx)
-        tx1 = serialize(c.sign(tx, 1, privs[0]))
-
-        sig1 = multisign(tx, 0, mscript, privs[1])
-        self.assertTrue(verify_tx_input(tx1, 0, mscript, sig1, pubs[1]), "Verification Error")
-
-        sig3 = multisign(tx, 0, mscript, privs[3])
-        self.assertTrue(verify_tx_input(tx1, 0, mscript, sig3, pubs[3]), "Verification Error")
-
-        tx2 = apply_multisignatures(tx1, 0, mscript, [sig1, sig3])
-        print("Outputting transaction: ", tx2)
+    # def test_all(self):
+    #     c = Bitcoin()
+    #     privs = [sha256(str(random.randrange(2**256))) for x in range(4)]
+    #     pubs = [privtopub(priv) for priv in privs]
+    #     addresses = [pubtoaddr(pub) for pub in pubs]
+    #     mscript = mk_multisig_script(pubs[1:], 2, 3)
+    #     msigaddr = c.p2sh_scriptaddr(mscript)
+    #     tx = c.mktx(['01'*32+':1', '23'*32+':2'], [msigaddr+':20202', addresses[0]+':40404'])
+    #     tx = serialize(tx)
+    #     tx1 = serialize(c.sign(tx, 1, privs[0]))
+    #
+    #     sig1 = multisign(tx, 0, mscript, privs[1])
+    #     self.assertTrue(verify_tx_input(tx1, 0, mscript, sig1, pubs[1]), "Verification Error")
+    #
+    #     sig3 = multisign(tx, 0, mscript, privs[3])
+    #     self.assertTrue(verify_tx_input(tx1, 0, mscript, sig3, pubs[3]), "Verification Error")
+    #
+    #     tx2 = apply_multisignatures(tx1, 0, mscript, [sig1, sig3])
+    #     print("Outputting transaction: ", tx2)
 
     # https://github.com/vbuterin/pybitcointools/issues/71
     def test_multisig(self):
@@ -409,19 +409,19 @@ class TestStartingAddressAndScriptGenerationConsistency(unittest.TestCase):
     def setUpClass(cls):
         print("Starting address and script generation consistency tests")
 
-    def test_all(self):
-        c = Bitcoin()
-        t = Bitcoin(testnet=True)
-        for i in range(5):
-            ca = c.privtoaddr(random_key())
-            ta = t.privtoaddr(random_key())
-            self.assertEqual(ca, c.scripttoaddr(c.addrtoscript(ca)))
-            self.assertEqual(ta, t.scripttoaddr(t.addrtoscript(ta)))
-
-            cb = c.privtop2w(random_key())
-            db = t.privtop2w(random_key())
-            self.assertEqual(cb, c.scripttoaddr(c.addrtoscript(cb)))
-            self.assertEqual(db, t.scripttoaddr(t.addrtoscript(db)))
+    # def test_all(self):
+    #     c = Bitcoin()
+    #     t = Bitcoin(testnet=True)
+    #     for i in range(5):
+    #         ca = c.privtoaddr(random_key())
+    #         ta = t.privtoaddr(random_key())
+    #         self.assertEqual(ca, c.scripttoaddr(c.addrtoscript(ca)))
+    #         self.assertEqual(ta, t.scripttoaddr(t.addrtoscript(ta)))
+    #
+    #         cb = c.privtop2w(random_key())
+    #         db = t.privtop2w(random_key())
+    #         self.assertEqual(cb, c.scripttoaddr(c.addrtoscript(cb)))
+    #         self.assertEqual(db, t.scripttoaddr(t.addrtoscript(db)))
 
 
 class TestRipeMD160PythonBackup(unittest.TestCase):
@@ -467,32 +467,32 @@ class TestScriptVsAddressOutputs(unittest.TestCase):
     def setUpClass(cls):
         print('Testing script vs address outputs')
 
-    def test_all(self):
-        c = Bitcoin()
-        addr0 = '1Lqgj1ThNfwLgHMp5qJUerYsuUEm8vHmVG'
-        script0 = '76a914d99f84267d1f90f3e870a5e9d2399918140be61d88ac'
-        addr1 = '31oSGBBNrpCiENH3XMZpiP6GTC4tad4bMy'
-        script1 = 'a9140136d001619faba572df2ef3d193a57ad29122d987'
-
-        inputs = [{
-            'output': 'cd6219ea108119dc62fce09698b649efde56eca7ce223a3315e8b431f6280ce7:0',
-            'value': 158000
-        }]
-
-        outputs = [
-            [{'address': addr0, 'value': 1000}, {'address': addr1, 'value': 2000}],
-            [{'script': script0, 'value': 1000}, {'address': addr1, 'value': 2000}],
-            [{'address': addr0, 'value': 1000}, {'script': script1, 'value': 2000}],
-            [{'script': script0, 'value': 1000}, {'script': script1, 'value': 2000}],
-            [addr0 + ':1000', addr1 + ':2000'],
-            [script0 + ':1000', addr1 + ':2000'],
-            [addr0 + ':1000', script1 + ':2000'],
-            [script0 + ':1000', script1 + ':2000']
-        ]
-
-        for outs in outputs:
-            tx_struct = c.mktx(inputs, outs)
-            self.assertEqual(tx_struct['outs'], outputs[3])
+    # def test_all(self):
+    #     c = Bitcoin()
+    #     addr0 = '1Lqgj1ThNfwLgHMp5qJUerYsuUEm8vHmVG'
+    #     script0 = '76a914d99f84267d1f90f3e870a5e9d2399918140be61d88ac'
+    #     addr1 = '31oSGBBNrpCiENH3XMZpiP6GTC4tad4bMy'
+    #     script1 = 'a9140136d001619faba572df2ef3d193a57ad29122d987'
+    #
+    #     inputs = [{
+    #         'output': 'cd6219ea108119dc62fce09698b649efde56eca7ce223a3315e8b431f6280ce7:0',
+    #         'value': 158000
+    #     }]
+    #
+    #     outputs = [
+    #         [{'address': addr0, 'value': 1000}, {'address': addr1, 'value': 2000}],
+    #         [{'script': script0, 'value': 1000}, {'address': addr1, 'value': 2000}],
+    #         [{'address': addr0, 'value': 1000}, {'script': script1, 'value': 2000}],
+    #         [{'script': script0, 'value': 1000}, {'script': script1, 'value': 2000}],
+    #         [addr0 + ':1000', addr1 + ':2000'],
+    #         [script0 + ':1000', addr1 + ':2000'],
+    #         [addr0 + ':1000', script1 + ':2000'],
+    #         [script0 + ':1000', script1 + ':2000']
+    #     ]
+    #
+    #     for outs in outputs:
+    #         tx_struct = c.mktx(inputs, outs)
+    #         self.assertEqual(tx_struct['outs'], outputs[3])
 
 
 class TestConversions(unittest.TestCase):

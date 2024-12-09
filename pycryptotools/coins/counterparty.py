@@ -1,5 +1,5 @@
 from .bitcoin import Bitcoin
-from pycryptotools.explorers.xchain_block_explorer import XchainBlockExplorer
+from pycryptotools.explorers.tokenscan_block_explorer import TokenscanExplorer
 
 
 class Counterparty(Bitcoin):
@@ -48,4 +48,4 @@ class Counterparty(Bitcoin):
 
     def __init__(self, testnet=False, **kwargs):
         super().__init__(testnet, **kwargs)
-        self.explorers = [XchainBlockExplorer(self, self.apikeys)]  # xchain
+        self.explorers = [TokenscanExplorer(self, self.apikeys)]  # xchain

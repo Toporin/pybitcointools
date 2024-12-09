@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Union, Any
 from decimal import Decimal
 import requests
@@ -9,7 +8,7 @@ from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
 
 
-class XchainBlockExplorer(BlockExplorer):
+class TokenscanExplorer(BlockExplorer):
 
         def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
             super().__init__(coin, apikeys)
@@ -18,9 +17,9 @@ class XchainBlockExplorer(BlockExplorer):
             """Get base URL based on coin symbol"""
             urls = {
                 "XCP": "https://tokenscan.io/",
-                "XCPTEST": "https://testnet.xchain.io/",
-                "XDP": "https://dogeparty.xchain.io/",
-                "XDPTEST": "https://dogeparty-testnet.xchain.io/"
+                "XCPTEST": "https://testnet.tokenscan.io/",
+                "XDP": "https://dogeparty.tokenscan.io/",
+                "XDPTEST": "https://dogeparty-testnet.tokenscan.io/"
             }
             return urls.get(self.coin_symbol, "https://notfound.org/")
 
@@ -34,7 +33,7 @@ class XchainBlockExplorer(BlockExplorer):
 
         def get_coin_info(self, addr):
             """Get native coin info for an address"""
-            print(f"In XchainBlockExplorer get_coin_info for: {addr}")
+            print(f"In TokenscanExplorer get_coin_info for: {addr}")
 
             url = f"{self.get_url()}api/address/{addr}"
             print(f"urlString: {url}")
@@ -61,7 +60,7 @@ class XchainBlockExplorer(BlockExplorer):
 
         def get_asset_list(self, addr):
             """Get simple asset list for an address"""
-            print(f"in XchainBlockExplorer get_asset_list - addr: {addr}")
+            print(f"in TokenscanExplorer get_asset_list - addr: {addr}")
 
             url = f"{self.get_url()}api/balances/{addr}"
             print(f"urlString: {url}")
@@ -109,9 +108,9 @@ class XchainBlockExplorer(BlockExplorer):
 
                             elif description.endswith(".json"):
                                 json_link = description
-                                print(f"DEBUG xchain.io json_link: {json_link}")
+                                print(f"DEBUG tokenscan.io json_link: {json_link}")
                                 response2 = requests.get(json_link)
-                                print(f"DEBUG xchain.io json_link response: {response2}")
+                                print(f"DEBUG tokenscan.io json_link response: {response2}")
                                 res2 = response2.json()
                                 asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
                                 #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))
@@ -120,7 +119,7 @@ class XchainBlockExplorer(BlockExplorer):
                                 asset["nft_description"] += description
 
                     except Exception as ex:
-                        print(f"EXCEPTION xchain.io get_nft_info json_link exception: {ex}")
+                        print(f"EXCEPTION tokenscan.io get_nft_info json_link exception: {ex}")
 
                 if asset.get('nft_image_url',""):
                     asset["type"] = AssetType.NFT
@@ -138,7 +137,7 @@ class XchainBlockExplorer(BlockExplorer):
 
         # async def get_balance(self, addr: str) -> float:
         #     """Get balance for an address"""
-        #     print(f"In XchainBlockExplorer getBalance for: {addr}")
+        #     print(f"In TokenscanExplorer getBalance for: {addr}")
         #
         #     url = f"{self.get_url()}api/address/{addr}"
         #     print(f"urlString: {url}")
@@ -158,7 +157,7 @@ class XchainBlockExplorer(BlockExplorer):
         #
         # async def get_simple_asset_list(self, addr: str) -> List[Dict[str, str]]:
         #     """Get simple asset list for an address"""
-        #     print(f"in XchainBlockExplorer getSimpleAssetList - addr: {addr}")
+        #     print(f"in TokenscanExplorer getSimpleAssetList - addr: {addr}")
         #
         #     url = f"{self.get_url()}api/balances/{addr}"
         #
@@ -206,7 +205,7 @@ class XchainBlockExplorer(BlockExplorer):
         #
         # async def get_token_balance(self, addr: str, contract: str) -> float:
         #     """Get balance for a specific token at an address"""
-        #     print(f"in XchainBlockExplorer getTokenBalance - addr: {addr}")
+        #     print(f"in TokenscanExplorer getTokenBalance - addr: {addr}")
         #
         #     url = f"{self.get_url()}api/balances/{addr}"
         #
@@ -233,7 +232,7 @@ class XchainBlockExplorer(BlockExplorer):
         #
         # async def get_token_info(self, contract: str) -> Dict[str, str]:
         #     """Get token information"""
-        #     print(f"in XchainBlockExplorer getTokenInfo - contract: {contract}")
+        #     print(f"in TokenscanExplorer getTokenInfo - contract: {contract}")
         #
         #     return {
         #         "name": contract,

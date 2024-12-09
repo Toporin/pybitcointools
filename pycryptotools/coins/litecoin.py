@@ -1,5 +1,4 @@
 from .bitcoin import Bitcoin
-from ..explorers import sochain
 from ..explorers.coingate_price_explorer import Coingate
 from ..explorers.litecoinspace_explorer import LitecoinspaceExplorer
 
@@ -14,7 +13,6 @@ class Litecoin(Bitcoin):
     wif_prefix = 0xb0
     segwit_hrp = "ltc"
     hd_path = 2
-    explorer = sochain
     testnet_overrides = {
         'display_name': "Litecoin Testnet",
         'coin_symbol': "LTCTEST",

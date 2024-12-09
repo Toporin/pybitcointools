@@ -54,7 +54,7 @@ class UnsupportedCoin(BaseCoin):
     def get_exchange_rate_with(self, other_coin: str):
         raise ValueError(f"Unsupported coin!")
 
-    
+
     def pubtoaddr(self, pubkey):
         return f"(unsupported coin 0x{self.key_slip44_hex})"
 

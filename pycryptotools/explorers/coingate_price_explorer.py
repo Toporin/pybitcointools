@@ -104,7 +104,7 @@ class Coingate(PriceExplorer):
         except requests.exceptions.RequestException:
             raise DataFetcherError(DataFetcherError.INVALID_URL)
 
-    def get_price_weburl(self, coin: Optional[str] = None) -> str:
+    def get_price_web_url(self, coin: Optional[str] = None) -> str:
         """
         Get web URL for price information.
 

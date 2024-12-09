@@ -36,7 +36,7 @@ class PriceExplorer(BaseExplorer):
         pass
 
     @abstractmethod
-    def get_price_weburl(self) -> str:
+    def get_price_web_url(self) -> str:
         """
         Get the web URL for price information.
 

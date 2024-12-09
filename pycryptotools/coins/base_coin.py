@@ -122,13 +122,14 @@ class BaseCoin(object):
         Get address from a public key
         """
         pass
-    
-    @abstractmethod
+
     def privtoaddr(self, privkey):
         """
         Get address from a private key
         """
-        pass
+        pub = self.privtopub(privkey)
+        addr = self.pubtoaddr(pub)
+        return addr
 
     def encode_privkey(self, privkey, formt, script_type="p2pkh"):
         return encode_privkey(privkey, formt=formt, vbyte=self.wif_prefix + self.wif_script_types[script_type])

@@ -1,6 +1,8 @@
 import re
 import requests
 
+# TODO refactor into a BlockExplorer class (or remove)
+
 #Docs: https://chain.so/api
 
 base_url = "https://chain.so/api/v2/"

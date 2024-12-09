@@ -1,6 +1,7 @@
 import requests
-from .utils import parse_addr_args
-  
+
+# TODO refactor into a BlockExplorer class (or remove)
+
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
 

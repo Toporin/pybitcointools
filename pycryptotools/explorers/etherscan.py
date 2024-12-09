@@ -1,5 +1,6 @@
 import requests
-from .utils import parse_addr_args
+
+# TODO refactor into a BlockExplorer class (or remove)
 
 def get_url(coin_symbol):
     if coin_symbol == "ETH":
