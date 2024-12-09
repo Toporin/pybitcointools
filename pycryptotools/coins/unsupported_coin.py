@@ -1,31 +1,20 @@
 #from ..explorers import blockchain
-from ..explorers import blockstream
-from .base_coin import BaseCoin
+from typing import List, Dict, Any
 
+from pycryptotools.coins.asset_type import AssetType
+from pycryptotools.coins.base_coin import BaseCoin
 
 class UnsupportedCoin(BaseCoin):
     coin_symbol = "???"
     display_name = "Unsupported Coin"
-    segwit_supported = True
-    explorer = None 
-    magicbyte = 0
-    script_magicbyte = 5
-    segwit_hrp = "bc"
-    client_kwargs = {
-        'server_file': 'bitcoin.json',
-    }
-
+    key_slip44_hex = "0x"
     testnet_overrides = {
         'display_name': "Unsupported Testnet",
         'coin_symbol': "???",
         'magicbyte': 111,
         'script_magicbyte': 196,
-        'segwit_hrp': 'tb',
         'hd_path': 1,
         'wif_prefix': 0xef,
-        'client_kwargs': {
-            'server_file': 'bitcoin_testnet.json',
-        },
         'xprv_headers': {
             'p2pkh': 0x04358394,
             'p2wpkh-p2sh': 0x044a4e28,
@@ -41,18 +30,31 @@ class UnsupportedCoin(BaseCoin):
             'p2wsh': 0x2aa7ed3
         },
     }
+
+    def get_address_web_url(self, addr: str) -> str:
+        # raise ValueError(f"Unsupported coin!")
+        return "https://example.com"
+
+    def get_coin_info(self, addr) -> Dict[str, Any]:
+        # raise ValueError(f"Unsupported coin!")
+        coin_info= {}
+        coin_info['symbol'] = self.coin_symbol
+        coin_info['name'] = self.display_name
+        coin_info['type'] = AssetType.COIN
+        coin_info['address_explorer_url'] = self.get_address_web_url(addr)
+        return coin_info
+
+    def get_asset_list(self, addr: str) -> List[Dict[str, Any]]:
+        return []
+
+        ######################################
+        #            PRICE EXPLORER          #
+        ######################################
+
+    def get_exchange_rate_with(self, other_coin: str):
+        raise ValueError(f"Unsupported coin!")
+
     
-    def balance_web(self, addr):
-        return -1
-        
-    def balance_token(self, addr:str, contract:str):
-        return -1
-        
-    def get_address_web_url(self, addr:str):
-        return ""
-        
     def pubtoaddr(self, pubkey):
         return f"(unsupported coin 0x{self.key_slip44_hex})"
-    
-    def pubtolegacy(self, pubkey):
-        return f"(unsupported coin 0x{self.key_slip44_hex})"
+
