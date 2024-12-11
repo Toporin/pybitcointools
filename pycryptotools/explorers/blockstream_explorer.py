@@ -56,17 +56,18 @@ class BlockstreamExplorer(BlockExplorer):
         coin_info = {}
 
         # compute balance
-        funded_txo_sum= data['chain_stats']['funded_txo_sum']
+        funded_txo_sum= Decimal(data['chain_stats']['funded_txo_sum'])
         print(f"DEBUG blockstream funded_txo_sum {funded_txo_sum}")
-        spent_txo_sum= data['chain_stats']['spent_txo_sum']
+        spent_txo_sum= Decimal(data['chain_stats']['spent_txo_sum'])
         print(f"DEBUG blockstream spent_txo_sum {spent_txo_sum}")
         balance= (funded_txo_sum - spent_txo_sum)/(10**8)
         print(f"DEBUG blockstream balance {balance}")
         coin_info['balance'] = balance
 
         # get exchange rate from third party
+        # todo: only get exchange rate if balance>0?
         try:
-            rate = self.coin.get_exchange_rate_with("USD")
+            rate: Decimal = self.coin.get_exchange_rate_with("USD")
             coin_info['exchange_rate'] = rate
             coin_info['currency'] = "USD"
         except Exception as ex:

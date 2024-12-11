@@ -65,7 +65,7 @@ class BaseCoin(object):
             try:
                 return explorer.get_address_web_url(addr)
             except Exception as ex:
-                print(f"Failed to get coin_info from {explorer}: {str(ex)}")
+                print(f"Failed to get address web url from {explorer}: {str(ex)}")
 
         # if not explorers returned to info, raise
         raise ValueError(f"Failed to recover url from explorers!")

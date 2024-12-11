@@ -47,8 +47,15 @@ class TokenscanExplorer(BlockExplorer):
             coin_info = {}
             coin_info['balance'] = Decimal(data.get('xcp_balance'))
             rates = data.get('estimated_value', {})
-            coin_info['exchange_rate'] = rates.get('usd'),
-            coin_info['currency'] = "USD",
+            coin_info['exchange_rate'] = Decimal(rates.get('usd'))
+            coin_info['currency'] = "USD"
+            print(f"DEBUG TokenscanExplorer type(rates): {type(rates)}")
+            print(f"DEBUG TokenscanExplorer rates: {rates}")
+            print(f"DEBUG TokenscanExplorer type(coin_info['exchange_rate)']: {type(coin_info.get('exchange_rate'))}")
+            print(f"DEBUG TokenscanExplorer coin_info['exchange_rate']: {coin_info.get('exchange_rate')}")
+            print(f"DEBUG TokenscanExplorer type(coin_info['currency']): {type(coin_info.get('currency'))}")
+            print(f"DEBUG TokenscanExplorer coin_info['currency']: {coin_info.get('currency')}")
+            print(f"DEBUG TokenscanExplorer coin_info: {coin_info}")
 
             # add more info
             coin_info['symbol'] = self.coin_symbol
@@ -79,8 +86,8 @@ class TokenscanExplorer(BlockExplorer):
                 asset['description'] = item.get('description', "")
                 # exchange rate
                 rates = data.get('estimated_value', {})
-                asset['exchange_rate'] = rates.get('usd'),
-                asset['currency'] = "USD",
+                asset['exchange_rate'] = Decimal(rates.get('usd'))
+                asset['currency'] = "USD"
                 # get nft info if any from description
                 description = data.get("description", "")
                 if description:

@@ -57,7 +57,18 @@ class BlockscoutExplorer(BlockExplorer):
 
         response = requests.get(url)
         if response.status_code != 200:
-            raise DataFetcherError(DataFetcherError.INVALID_URL)
+            if response.status_code == 404:
+                # Not found in blockchain
+                coin_info = {}
+                coin_info['balance'] = Decimal(0)
+                coin_info['symbol'] = self.coin_symbol
+                coin_info['name'] = self.coin.display_name
+                coin_info['type'] = AssetType.COIN
+                coin_info['address_explorer_url'] = self.get_address_web_url(addr)
+                print(f"NOT FOUND! coin_info: {coin_info}")
+                return coin_info
+            else:
+                raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
         coin_info = self.parse_coin_info_json(data)
@@ -65,7 +76,7 @@ class BlockscoutExplorer(BlockExplorer):
         coin_info['name'] = self.coin.display_name
         coin_info['type'] = AssetType.COIN
         coin_info['address_explorer_url'] = self.get_address_web_url(addr)
-        print(f"coin_info: {coin_info}")
+        print(f"Found coin_info: {coin_info}")
         return coin_info
 
     def get_asset_list(self, addr):
@@ -79,7 +90,12 @@ class BlockscoutExplorer(BlockExplorer):
         # todo: pagination https://docs.blockscout.com/devs/apis/rest
         response = requests.get(url)
         if response.status_code != 200:
-            raise DataFetcherError(DataFetcherError.INVALID_URL)
+            print(f"Failed to recover data from url {url}, response status {response.status_code}")
+            if response.status_code == 404:
+                # Not found in blockchain
+                return []
+            else:
+                raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
         asset_list = self.parse_asset_list_json(addr, data)
@@ -102,19 +118,20 @@ class BlockscoutExplorer(BlockExplorer):
         try:
             # Parse JSON if string, otherwise use the dict directly
             data = json.loads(json_data) if isinstance(json_data, str) else json_data
+            print(f"DEBUG: data from blockscout: {data}")
 
             # Convert balance from wei to ether if present
-            coin_balance_wei = data.get('coin_balance')
+            coin_balance_wei = data.get('coin_balance', '0')
             coin_balance_eth = (
                 Decimal(coin_balance_wei) / Decimal('1000000000000000000')
                 if coin_balance_wei is not None
-                else None
+                else Decimal(0)
             )
 
             parsed_data = {}
             parsed_data['balance'] = coin_balance_eth
-            parsed_data['exchange_rate'] = data.get('exchange_rate'),
-            parsed_data['currency'] = data.get('USD'),
+            parsed_data['exchange_rate'] = Decimal(data.get('exchange_rate'))
+            parsed_data['currency'] = "USD"
             parsed_data['ens_domain'] = data.get('ens_domain_name')
 
             return parsed_data
@@ -133,7 +150,7 @@ class BlockscoutExplorer(BlockExplorer):
         # Parse JSON if string, otherwise use the dict directly
         data = json.loads(json_data) if isinstance(json_data, str) else json_data
 
-        items = data.get('items', []) # list of assets
+        items = data.get('items', [])  # list of assets
         for item in items:
             asset = {}
             token = item.get('token', {})
