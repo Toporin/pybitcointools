@@ -46,8 +46,8 @@ class TokenscanExplorer(BlockExplorer):
 
             coin_info = {}
             coin_info['balance'] = Decimal(data.get('xcp_balance'))
-            rates = data.get('estimated_value', {})
-            coin_info['exchange_rate'] = Decimal(rates.get('usd'))
+            rates = data.get('estimated_value', {})  # this is the estimated value of all assets held!
+            coin_info['exchange_rate'] = Decimal(rates.get('usd'))/Decimal(rates.get('xcp'))
             coin_info['currency'] = "USD"
             print(f"DEBUG TokenscanExplorer type(rates): {type(rates)}")
             print(f"DEBUG TokenscanExplorer rates: {rates}")
@@ -79,66 +79,76 @@ class TokenscanExplorer(BlockExplorer):
             asset_list = []
             data = response.json()
             items = data.get('data', [])
+            print(f"asset_list size: {len(items)}")
             for item in items:
-                asset={}
-                asset['name'] = item.get('asset', "")
-                asset['symbol'] = item.get('symbol', "")
-                asset['description'] = item.get('description', "")
-                # exchange rate
-                rates = data.get('estimated_value', {})
-                asset['exchange_rate'] = Decimal(rates.get('usd'))
-                asset['currency'] = "USD"
-                # get nft info if any from description
-                description = data.get("description", "")
-                if description:
-                    # description can be a link or a shortcut
-                    # imgur/6rF0Dar.jpg; FAKEAPEPOKER => https://i.imgur.com/6rF0Dar.jpg
-                    # https://i.imgur.com/aPzAR0i.jpg;KARNADI
-                    # https://easyasset.art/j/omhf84/MARSJUWANNA.json
+                try:
+                    print(f"DEBUG asset: {item}")
+                    asset = {}
+                    asset['name'] = item.get('asset', "")
+                    asset['symbol'] = item.get('symbol', "")
+                    asset['description'] = item.get('description', "")
+                    asset['balance'] = Decimal(item.get('quantity', ""))
+                    # exchange rate
                     try:
-                        if description.startswith("*"):  # some starts with *
-                            description = description[len("*"):]  # .removeprefix("*") requires python 3.9
-
-                        if description.startswith("imgur/"):
-                            blob = description[len("imgur/"):]  # .removeprefix("*") requires python 3.9
-                            blobsplit = blob.split(";")
-                            part = blobsplit[0]
-                            imlink = "https://i.imgur.com/" + part
-                            asset["nft_image_url"] = imlink
-
-                        elif description.startswith("https://") or description.startswith("http://"):
-                            if (description.endswith(".png")
-                                    or description.endswith(".jpg")
-                                    or description.endswith(".jpeg")
-                                    or description.endswith(".gif")):
-                                asset["nft_image_url"] = description
-
-                            elif description.endswith(".json"):
-                                json_link = description
-                                print(f"DEBUG tokenscan.io json_link: {json_link}")
-                                response2 = requests.get(json_link)
-                                print(f"DEBUG tokenscan.io json_link response: {response2}")
-                                res2 = response2.json()
-                                asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
-                                #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))
-
-                            else:
-                                asset["nft_description"] += description
-
+                        rates = item.get('estimated_value', {})
+                        asset['exchange_rate'] = Decimal(rates.get('usd'))
+                        asset['currency'] = "USD"
                     except Exception as ex:
-                        print(f"EXCEPTION tokenscan.io get_nft_info json_link exception: {ex}")
+                        print(f"Exception in tokenscanExplorer get exchange rate: {ex}")
 
-                if asset.get('nft_image_url',""):
-                    asset["type"] = AssetType.NFT
-                    asset["nft_explore_link"] = self.get_token_web_url(asset['name'])
-                else:
-                    asset["type"] = AssetType.TOKEN
-                    asset["token_explore_link"] = self.get_token_web_url(asset['name'])
+                    # get nft info if any from description
+                    description = item.get("description", "")
+                    if description:
+                        # description can be a link or a shortcut
+                        # imgur/6rF0Dar.jpg; FAKEAPEPOKER => https://i.imgur.com/6rF0Dar.jpg
+                        # https://i.imgur.com/aPzAR0i.jpg;KARNADI
+                        # https://easyasset.art/j/omhf84/MARSJUWANNA.json
+                        try:
+                            if description.startswith("*"):  # some starts with *
+                                description = description[len("*"):]  # .removeprefix("*") requires python 3.9
 
-                asset["address_explore_url"] = self.get_address_web_url(addr)
+                            if description.startswith("imgur/"):
+                                blob = description[len("imgur/"):]  # .removeprefix("*") requires python 3.9
+                                blobsplit = blob.split(";")
+                                part = blobsplit[0]
+                                imlink = "https://i.imgur.com/" + part
+                                asset["nft_image_url"] = imlink
 
-                # add to list
-                asset_list += [asset]
+                            elif description.startswith("https://") or description.startswith("http://"):
+                                if (description.endswith(".png")
+                                        or description.endswith(".jpg")
+                                        or description.endswith(".jpeg")
+                                        or description.endswith(".gif")):
+                                    asset["nft_image_url"] = description
+
+                                elif description.endswith(".json"):
+                                    json_link = description
+                                    print(f"DEBUG tokenscan.io json_link: {json_link}")
+                                    response2 = requests.get(json_link)
+                                    print(f"DEBUG tokenscan.io json_link response: {response2}")
+                                    res2 = response2.json()
+                                    asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
+                                    #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))
+
+                                else:
+                                    asset["nft_description"] += description
+
+                        except Exception as ex:
+                            print(f"EXCEPTION tokenscan.io get_nft_info json_link exception: {ex}")
+
+                    if asset.get('nft_image_url',""):
+                        asset["type"] = AssetType.NFT
+                        asset["nft_explore_link"] = self.get_token_web_url(asset['name'])
+                    else:
+                        asset["type"] = AssetType.TOKEN
+                        asset["token_explore_link"] = self.get_token_web_url(asset['name'])
+
+                    asset["address_explore_url"] = self.get_address_web_url(addr)
+
+                    # add to list
+                    asset_list += [asset]
+                except Exception as ex:
+                    print(f"Exception in TokenscanExplorer get_asset_list - failed to parse 1 asset: {str(ex)}")
 
             return asset_list
 
