@@ -4,13 +4,14 @@ from typing import List, Dict, Any
 from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.coins.base_coin import BaseCoin
 
+
 class UnsupportedCoin(BaseCoin):
-    coin_symbol = "???"
+    coin_symbol = "UNKNOWN"
     display_name = "Unsupported Coin"
     key_slip44_hex = "0x"
     testnet_overrides = {
         'display_name': "Unsupported Testnet",
-        'coin_symbol': "???",
+        'coin_symbol': "UNKNOWNTEST",
         'magicbyte': 111,
         'script_magicbyte': 196,
         'hd_path': 1,
