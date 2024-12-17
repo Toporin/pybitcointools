@@ -39,11 +39,12 @@ class Ethereum(BaseCoin):
         super().__init__(testnet, **kwargs)
         self.explorers = [BlockscoutExplorer(self, self.apikeys)]
 
-    def pubtoaddr(self, pubkey:bytes)-> str:
+    def pubtoaddr(self, pubkey: bytes) -> str:
         """
         Get address from a public key
         """
         size= len(pubkey)
+        # ethereum use uncompressed address
         if size<64 or size>65:
             addr= f"Unexpected pubkey size {size}, should be 64 or 65 bytes"
             return addr

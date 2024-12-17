@@ -17,6 +17,7 @@ class BaseCoin(object):
     testnet_overrides = {}
     hd_path = 0
     # used for privkey WIF encoding
+    use_compressed_addr = True
     wif_prefix = 0x80
     wif_script_types = {
         'p2pkh': 0,
@@ -110,20 +111,20 @@ class BaseCoin(object):
     ######################################
     #           KEY  &  ADDRESS          #
     ######################################
-    def privtopub(self, privkey):
+    def privtopub(self, privkey: bytes):
         """
         Get public key from private key
         """
         return privtopub(privkey)  # see main.py
 
     @abstractmethod
-    def pubtoaddr(self, pubkey):
+    def pubtoaddr(self, pubkey: bytes):
         """
         Get address from a public key
         """
         pass
 
-    def privtoaddr(self, privkey):
+    def privtoaddr(self, privkey: bytes):
         """
         Get address from a private key
         """
@@ -131,5 +132,9 @@ class BaseCoin(object):
         addr = self.pubtoaddr(pub)
         return addr
 
-    def encode_privkey(self, privkey, formt, script_type="p2pkh"):
+    def encode_privkey(self, privkey: bytes, formt=None, script_type="p2pkh"):
+
+        if formt == None:
+            formt = 'wif_compressed' if self.use_compressed_addr else 'wif'
+
         return encode_privkey(privkey, formt=formt, vbyte=self.wif_prefix + self.wif_script_types[script_type])
