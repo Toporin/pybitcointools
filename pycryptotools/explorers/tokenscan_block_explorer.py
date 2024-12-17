@@ -138,12 +138,12 @@ class TokenscanExplorer(BlockExplorer):
 
                     if asset.get('nft_image_url',""):
                         asset["type"] = AssetType.NFT
-                        asset["nft_explore_link"] = self.get_token_web_url(asset['name'])
+                        asset["nft_explorer_url"] = self.get_token_web_url(asset['name'])
                     else:
                         asset["type"] = AssetType.TOKEN
-                        asset["token_explore_link"] = self.get_token_web_url(asset['name'])
+                        asset["token_explorer_url"] = self.get_token_web_url(asset['name'])
 
-                    asset["address_explore_url"] = self.get_address_web_url(addr)
+                    asset["address_explorer_url"] = self.get_address_web_url(addr)
 
                     # add to list
                     asset_list += [asset]
