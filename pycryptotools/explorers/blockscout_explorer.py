@@ -152,36 +152,48 @@ class BlockscoutExplorer(BlockExplorer):
 
         items = data.get('items', [])  # list of assets
         for item in items:
-            asset = {}
-            token = item.get('token', {})
-            asset['name'] = token.get('name')
-            asset['exchange_rate'] = token.get('exchange_rate')
-            asset['currency'] = "USD"
-            asset['contract'] = token.get('address', '')
-
             try:
-                asset['balance'] = Decimal(item.get('value')) / (10**Decimal(token.get('decimals')))
+                asset = {}
+                token = item.get('token', {})
+                asset['name'] = token.get('name')
+                asset['contract'] = token.get('address', '')
+
+                # exchange rate
+                try:
+                    asset['exchange_rate'] = Decimal(token.get('exchange_rate'))
+                    asset['currency'] = "USD"
+                except Exception as ex:
+                    asset['exchange_rate'] = None
+                    asset['currency'] = None
+
+                # balance
+                try:
+                    asset['balance'] = Decimal(item.get('value')) / (10**Decimal(token.get('decimals')))
+                except Exception as ex:
+                    asset['balance'] = None
+
+                asset_type = token.get('type')
+                if asset_type == "ERC-20":
+                    asset['type'] = AssetType.TOKEN
+                elif asset_type == "ERC-1155":
+                    asset['type'] = AssetType.NFT
+                elif asset_type == "ERC-721":
+                    asset['type'] = AssetType.NFT
+
+                nft = item.get('token_instance', None)
+                if isinstance(nft, Dict):
+                    asset['tokenid'] = nft.get('id', "")
+                    asset['nft_image_url'] = nft.get('image_url', "")
+                    asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
+
+                asset_list += [asset]
+
+                # explorer links
+                asset['token_explorer_url'] = self.get_token_web_url(asset.get("contract"))
+                asset['address_explorer_url'] = self.get_address_web_url(addr)
+
             except Exception as ex:
-                asset['balance'] = None
-
-            type = token.get('type')
-            if type == "ERC-20":
-                asset['type'] = AssetType.TOKEN
-            elif type == "ERC-1155":
-                asset['type'] = AssetType.NFT
-            elif type == "ERC-721":
-                asset['type'] = AssetType.NFT
-
-            nft = item.get('token_instance', None)
-            if isinstance(nft, Dict):
-                asset['tokenid'] = nft.get('id', "")
-                asset['nft_image_url'] = nft.get('image_url', "")
-                asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
-
-            asset_list += [asset]
-
-            # explorer links
-            asset['token_explorer_url'] = self.get_token_web_url(asset.get("contract"))
-            asset['address_explorer_url'] = self.get_address_web_url(addr)
+                print(f"Exception in BlockscoutExplorer parse_asset_list_json: {ex}")
+                print(f"Exception in BlockscoutExplorer asset: {item}")
 
         return asset_list
