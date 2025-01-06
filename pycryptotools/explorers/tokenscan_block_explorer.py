@@ -47,8 +47,11 @@ class TokenscanExplorer(BlockExplorer):
             coin_info = {}
             coin_info['balance'] = Decimal(data.get('xcp_balance'))
             rates = data.get('estimated_value', {})  # this is the estimated value of all assets held!
-            coin_info['exchange_rate'] = Decimal(rates.get('usd'))/Decimal(rates.get('xcp'))
-            coin_info['currency'] = "USD"
+            try:
+                coin_info['exchange_rate'] = Decimal(rates.get('usd'))/Decimal(rates.get('xcp'))
+                coin_info['currency'] = "USD"
+            except Exception as ex:
+                print(f"Exception in tokenscanExplorer get exchange rate: {ex}")
             print(f"DEBUG TokenscanExplorer type(rates): {type(rates)}")
             print(f"DEBUG TokenscanExplorer rates: {rates}")
             print(f"DEBUG TokenscanExplorer type(coin_info['exchange_rate)']: {type(coin_info.get('exchange_rate'))}")
