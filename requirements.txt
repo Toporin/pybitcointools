@@ -1,8 +1,10 @@
-requests
-pbkdf2
+requests~=2.32.3
+pbkdf2~=1.3
 eth-hash
-cashaddress
+cashaddress~=1.0.6
 pycryptodome
 #pycryptodomex
 #pysha3
 #eth-utils==1.8.4
+setuptools~=68.2.0
+base58~=2.1.1

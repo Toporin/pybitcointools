@@ -4,3 +4,4 @@ cryptos.egg-info/*
 pycryptotools.egg-info/*
 build/
 dist/
+.idea/

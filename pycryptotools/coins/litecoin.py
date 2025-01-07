@@ -1,7 +1,9 @@
-from .base import BaseCoin
-from ..explorers import sochain
+from .bitcoin import Bitcoin
+from ..explorers.coingate_price_explorer import Coingate
+from ..explorers.litecoinspace_explorer import LitecoinspaceExplorer
 
-class Litecoin(BaseCoin):
+
+class Litecoin(Bitcoin):
     coin_symbol = "LTC"
     display_name = "Litecoin"
     segwit_supported = True
@@ -11,7 +13,6 @@ class Litecoin(BaseCoin):
     wif_prefix = 0xb0
     segwit_hrp = "ltc"
     hd_path = 2
-    explorer = sochain
     testnet_overrides = {
         'display_name': "Litecoin Testnet",
         'coin_symbol': "LTCTEST",
@@ -24,3 +25,8 @@ class Litecoin(BaseCoin):
         'xpriv_prefix': 0x04358394,
         'xpub_prefix': 0x043587cf
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [LitecoinspaceExplorer(self, self.apikeys)]
+        self.price_explorers = [Coingate(self, self.apikeys)]

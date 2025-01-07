@@ -1,26 +1,20 @@
-#from ..explorers import blockchain
-from ..explorers import etherscan
-from ..explorers import rarible
-from ..explorers import opensea
-from .base import BaseCoin
-
-#from eth_utils import keccak
 from eth_hash.auto import keccak
+
+from pycryptotools.coins.base_coin import BaseCoin
+from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+
 
 class Ethereum(BaseCoin):
     coin_symbol = "ETH"
     display_name = "Ethereum"
-    segwit_supported = False
-    use_compressed_addr= False
+    use_compressed_addr = False
     magicbyte = 0
     script_magicbyte = 5
-    explorer = etherscan
-    nft_explorer= rarible #opensea # rarible # 
-    nft_supported= True
+    nft_supported = True
     
     testnet_overrides = {
-        'display_name': "Ropsten Testnet",
-        'coin_symbol': "ROP",
+        'display_name': "Ethereum Testnet", # sepolia?
+        'coin_symbol': "ETHTEST",
         'magicbyte': 111,
         'script_magicbyte': 196,
         'hd_path': 1,
@@ -40,12 +34,17 @@ class Ethereum(BaseCoin):
             'p2wsh': 0x2aa7ed3
         },
     }
-    
-    def pubtoaddr(self, pubkey:bytes)-> str:
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [BlockscoutExplorer(self, self.apikeys)]
+
+    def pubtoaddr(self, pubkey: bytes) -> str:
         """
         Get address from a public key
         """
         size= len(pubkey)
+        # ethereum use uncompressed address
         if size<64 or size>65:
             addr= f"Unexpected pubkey size {size}, should be 64 or 65 bytes"
             return addr
@@ -57,9 +56,3 @@ class Ethereum(BaseCoin):
         pubkey_hash= pubkey_hash[-20:]
         addr= "0x" + pubkey_hash.hex()
         return addr
-        
-    def get_nft_owner_weburl(self, address:str) -> str:
-        return opensea.get_nft_owner_weburl(address)
-        
-    def get_nft_weburl(self, contract:str, token_id:str)->str:
-        return opensea.get_nft_weburl(contract, token_id)

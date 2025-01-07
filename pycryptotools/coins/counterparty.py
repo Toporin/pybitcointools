@@ -1,20 +1,19 @@
-#from ..explorers import blockchain
-from ..explorers import xchain
-from .base import BaseCoin
+from .bitcoin import Bitcoin
+from pycryptotools.explorers.tokenscan_block_explorer import TokenscanExplorer
 
 
-class Counterparty(BaseCoin):
+class Counterparty(Bitcoin):
     coin_symbol = "XCP"
     display_name = "Counterparty"
     segwit_supported = False # currently, use legacy
     magicbyte = 0
     script_magicbyte = 5
     segwit_hrp = "bc"
-    
+    use_compressed_addr = True
     supports_nft= True
     supports_token= True
-    explorer = xchain
-    nft_explorer= xchain
+
+    #nft_explorer= xchain
     
     client_kwargs = {
         'server_file': 'bitcoin.json',
@@ -46,3 +45,7 @@ class Counterparty(BaseCoin):
             'p2wsh': 0x2aa7ed3
         },
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [TokenscanExplorer(self, self.apikeys)]  # xchain

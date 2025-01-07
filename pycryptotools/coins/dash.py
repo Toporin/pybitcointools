@@ -1,8 +1,6 @@
-from .base import BaseCoin
-from ..explorers import dash_siampm
-from ..explorers import sochain
+from .bitcoin import Bitcoin
 
-class Dash(BaseCoin):
+class Dash(Bitcoin):
     coin_symbol = "DASH"
     display_name = "Dash"
     segwit_supported = False
@@ -10,7 +8,6 @@ class Dash(BaseCoin):
     script_magicbyte = 16
     wif_prefix = 0xcc
     hd_path = 5
-    explorer = sochain #explorer = dash_siampm
     testnet_overrides = {
         'display_name': "Dash Testnet",
         'coin_symbol': "DASHTEST",

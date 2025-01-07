@@ -1,8 +1,6 @@
-from .bitcoin import BaseCoin
-from ..explorers import sochain
+from .bitcoin import Bitcoin
 
-
-class Doge(BaseCoin):
+class Doge(Bitcoin):
     coin_symbol = "DOGE"
     display_name = "Dogecoin"
     segwit_supported = False
@@ -10,7 +8,6 @@ class Doge(BaseCoin):
     script_magicbyte = 22
     wif_prefix = 0x9e
     hd_path = 3
-    explorer = sochain
     xpriv_prefix = 0x02facafd
     xpub_prefix = 0x02fac398
     testnet_overrides = {

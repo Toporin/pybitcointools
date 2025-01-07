@@ -1,6 +1,7 @@
 import requests
-from .utils import parse_addr_args
-  
+
+# TODO refactor into a BlockExplorer class (or remove)
+
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
 
@@ -11,12 +12,12 @@ def get_api_url(coin_symbol:str="ETH"):
         return "https://api.opensea.io/api/v1/" # main
     return "https://rinkeby-api.opensea.io/api/v1/" # Rinkeby
     
-def address_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
+def get_address_web_url(addr:str, coin_symbol:str="ETH", apikeys={}):
     web_url="https://opensea.io/" + addr
     return web_url;
     
 def get_nft_owner_weburl(addr:str, coin_symbol:str="ETH", apikeys={}):
-    return address_weburl(addr, coin_symbol, apikeys)
+    return get_address_web_url(addr, coin_symbol, apikeys)
 
 def get_nft_weburl(contract:str, tokenID:str, apikeys={}):
     web_url="https://opensea.io/assets/" + contract  + "/" + tokenID

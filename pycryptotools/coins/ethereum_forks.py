@@ -1,18 +1,29 @@
-from ..explorers import bscscan
-from ..explorers import blockscout
-from .ethereum import Ethereum
+from pycryptotools.explorers import bscscan
+from pycryptotools.coins.ethereum import Ethereum
+
 
 class EthereumClassic(Ethereum):
     coin_symbol = "ETC"
     display_name = "Ethereum Classic"
-    explorer = blockscout
 
     testnet_overrides = {
         'display_name': "ETC Mordor",
         'coin_symbol': "ETCTEST",
         'magicbyte': 111,
     }
-    
+
+
+class Polygon(Ethereum):
+    coin_symbol = "POL"
+    display_name = "Polygon"
+
+    testnet_overrides = {
+        'display_name': "Polygon testnet",
+        'coin_symbol': "POLTEST",
+        'magicbyte': 111,
+    }
+
+
 class BinanceSmartChain(Ethereum):
     coin_symbol = "BSC"
     display_name = "Binance Smart Chain"
@@ -27,7 +38,6 @@ class BinanceSmartChain(Ethereum):
 class RSK(Ethereum):
     coin_symbol = "RBTC"
     display_name = "RSK"
-    explorer = blockscout
 
     testnet_overrides = {
         'display_name': "(Unsupported)",
@@ -38,7 +48,6 @@ class RSK(Ethereum):
 class xDai(Ethereum):
     coin_symbol = "XDAI"
     display_name = "xDai"
-    explorer = blockscout
 
     testnet_overrides = {
         'display_name': "(Unsupported)",
@@ -49,7 +58,6 @@ class xDai(Ethereum):
 class POA(Ethereum):
     coin_symbol = "POA"
     display_name = "POA"
-    explorer = blockscout
 
     testnet_overrides = {
         'display_name': "POA Sokol",

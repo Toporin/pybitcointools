@@ -460,7 +460,7 @@ def pubkey_to_legacy_address(pubkey, magicbyte=0):
     return bin_to_b58check(pubkey_hash, magicbyte)
 
 pubtolegacy = pubkey_to_legacy_address
-
+pubtoaddr = pubkey_to_legacy_address
 
 def is_privkey(priv):
     try:

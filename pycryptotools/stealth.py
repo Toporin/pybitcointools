@@ -1,4 +1,4 @@
-from . import main
+from pycryptotools import main
 
 # Shared secrets and uncovering pay keys
 
@@ -84,7 +84,7 @@ def mk_stealth_tx_outputs(stealth_addr, value, ephem_privkey, nonce, network='bt
                'value': 0}
 
     pay_pubkey = uncover_pay_pubkey_sender(scan_pubkey, spend_pubkey, ephem_privkey)
-    pay_addr = main.pubkey_to_address(pay_pubkey, magic_byte_addr)
+    pay_addr = main.pubkey_to_legacy_address(pay_pubkey, magic_byte_addr)
     output1 = {'address': pay_addr,
                'value': value}
 

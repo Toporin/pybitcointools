@@ -74,14 +74,14 @@ class TestStealth(unittest.TestCase):
 
         self.assertEqual(outputs[0]['value'], 0)
         self.assertEqual(outputs[0]['script'], '6a2606deadbeef' + self.ephem_pub)
-        self.assertEqual(outputs[1]['address'], bc.pubkey_to_address(self.pay_pub))
+        self.assertEqual(outputs[1]['address'], bc.pubkey_to_legacy_address(self.pay_pub))
         self.assertEqual(outputs[1]['value'], value)
         
         outputs = bc.mk_stealth_tx_outputs(self.testnet_addr, value, self.ephem_priv, nonce, 'testnet')
         
         self.assertEqual(outputs[0]['value'], 0)
         self.assertEqual(outputs[0]['script'], '6a2606deadbeef' + self.ephem_pub)
-        self.assertEqual(outputs[1]['address'], bc.pubkey_to_address(self.pay_pub, 111))
+        self.assertEqual(outputs[1]['address'], bc.pubkey_to_legacy_address(self.pay_pub, 111))
         self.assertEqual(outputs[1]['value'], value)
 
         self.assertRaises(Exception, bc.mk_stealth_tx_outputs, self.testnet_addr, value, self.ephem_priv, nonce, 'btc')
