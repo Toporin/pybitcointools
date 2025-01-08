@@ -1,8 +1,6 @@
-from eth_hash.auto import keccak
-
+from pycryptotools import keccak
 from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
-
 
 class Ethereum(BaseCoin):
     coin_symbol = "ETH"
@@ -52,7 +50,7 @@ class Ethereum(BaseCoin):
         if size== 65:
             pubkey= pubkey[1:]
         
-        pubkey_hash= keccak(pubkey)
-        pubkey_hash= pubkey_hash[-20:]
-        addr= "0x" + pubkey_hash.hex()
+        pubkey_hash = keccak.Keccak256(pubkey).digest()
+        pubkey_hash = pubkey_hash[-20:]
+        addr = "0x" + pubkey_hash.hex()
         return addr
