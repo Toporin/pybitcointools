@@ -84,7 +84,8 @@ class BlockscoutExplorer(BlockExplorer):
         print(f"In BlockscoutExplorer get_asset_list for: {addr}")
 
         # url = f"{self.get_api_url()}addresses/{addr}/tokens?type=ERC-20%2CERC-721%2CERC-1155"
-        url = f"{self.get_api_url()}addresses/{addr}/tokens"
+        # url = f"{self.get_api_url()}addresses/{addr}/tokens"
+        url = f"{self.get_api_url()}addresses/{addr}/tokens?type=ERC-20" # only erc20
         print(f"urlString: {url}")
 
         # todo: pagination https://docs.blockscout.com/devs/apis/rest
@@ -98,6 +99,25 @@ class BlockscoutExplorer(BlockExplorer):
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
+
+        # get nfts
+        url = f"{self.get_api_url()}addresses/{addr}/nft"  # no erc20, but erc721, erc404 & erc1155
+        print(f"urlString: {url}")
+
+        response = requests.get(url)
+        if response.status_code != 200:
+            print(f"Failed to recover data from url {url}, response status {response.status_code}")
+            if response.status_code == 404:
+                # Not found in blockchain
+                return []
+            else:
+                raise DataFetcherError(DataFetcherError.INVALID_URL)
+
+        data_nft = response.json()
+
+        # merge toke & nft data
+        data.update(data_nft)
+
         asset_list = self.parse_asset_list_json(addr, data)
         print(f"asset_list: {asset_list}")
         return asset_list
@@ -156,7 +176,9 @@ class BlockscoutExplorer(BlockExplorer):
                 asset = {}
                 token = item.get('token', {})
                 asset['name'] = token.get('name')
-                asset['contract'] = token.get('address', '')
+                asset['contract'] = token.get('address_hash', None)
+                asset['symbol'] = token.get('symbol', None)
+                asset['icon_url'] = token.get('icon_url', None)
 
                 # exchange rate
                 try:
@@ -168,23 +190,35 @@ class BlockscoutExplorer(BlockExplorer):
 
                 # balance
                 try:
-                    asset['balance'] = Decimal(item.get('value')) / (10**Decimal(token.get('decimals')))
+                    decimals = token.get('decimals', 0) or 0
+                    asset['balance'] = Decimal(item.get('value')) / (10**Decimal(decimals))
                 except Exception as ex:
                     asset['balance'] = None
 
                 asset_type = token.get('type')
                 if asset_type == "ERC-20":
                     asset['type'] = AssetType.TOKEN
-                elif asset_type == "ERC-1155":
-                    asset['type'] = AssetType.NFT
-                elif asset_type == "ERC-721":
+                else:
                     asset['type'] = AssetType.NFT
 
-                nft = item.get('token_instance', None)
-                if isinstance(nft, Dict):
-                    asset['tokenid'] = nft.get('id', "")
-                    asset['nft_image_url'] = nft.get('image_url', "")
-                    asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
+                asset['external_app_url'] = item.get('external_app_url', None)
+
+                # NFTs
+                asset['tokenid'] = item.get('id', None)
+                asset['nft_image_url'] = item.get('image_url', None)
+                asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
+
+                # NFT details
+                metadata = item.get('metadata', {})
+                asset['nft_attributes'] = metadata.get('attributes', None)
+                asset['nft_description'] = metadata.get('description', None)
+                asset['nft_name'] = metadata.get('name', None)
+
+                # nft = item.get('token', None)
+                # if isinstance(nft, Dict):
+                #     asset['tokenid'] = nft.get('id', "")
+                #     asset['nft_image_url'] = nft.get('image_url', "")
+                #     asset['nft_explorer_url'] = self.get_nft_web_url(asset.get("contract"), asset.get("tokenid"))
 
                 asset_list += [asset]
 
