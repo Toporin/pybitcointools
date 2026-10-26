@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [0.3.3 - Unreleased]
 
 Fix Bitcoin Cash balance and explorer link (https://github.com/Toporin/Satochip-Utils/issues/41):
 the Fullstack.cash API no longer serves data, so `get_coin_info()` failed for BCH and BCH testnet.
