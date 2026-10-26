@@ -23,7 +23,7 @@ class LitecoinspaceExplorer(BlockExplorer):
 
     def get_address_web_url(self, addr: str) -> str:
         """Get web link for an address"""
-        if self.coin_symbol == "BTC":
+        if self.coin_symbol == "LTC":
             return "https://litecoinspace.org/address/" + addr
         return "https://litecoinspace.org/testnet/address/" + addr
 
