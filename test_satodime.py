@@ -692,6 +692,31 @@ class BitcoinCashCase(unittest.TestCase):
 
     def test_explorer(self):
         test_explorer(self.coin, ADDRESS_BCH_EXPLORER)
+        addr = "bitcoincash:" + ADDRESS_BCH_EXPLORER[2]
+        coin_info = self.coin.get_coin_info(addr)
+        self.assertEqual(coin_info['address_explorer_url'], "https://blockchair.com/bitcoin-cash/address/" + addr)
+        self.assertGreater(coin_info['balance'], 0)
+
+
+ADDRESS_BCHTEST_EXPLORER = [
+    "bchtest:qps822p04zpg676v6krnwhjhtqx44klcvqjrg353rc",
+]
+
+
+class BitcoinCashTestCase(unittest.TestCase):
+    """ Bitcoin Cash testnet (chipnet) """
+    coin = BitcoinCash(testnet=True)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        # https://github.com/Toporin/Satochip-Utils/issues/41
+        test_explorer(self.coin, ADDRESS_BCHTEST_EXPLORER)
+        coin_info = self.coin.get_coin_info(ADDRESS_BCHTEST_EXPLORER[0])
+        self.assertEqual(coin_info['address_explorer_url'], "(not supported)")
+        self.assertIn('balance', coin_info)
 
 
 class EthereumCase(unittest.TestCase):

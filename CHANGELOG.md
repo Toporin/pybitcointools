@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Fix Bitcoin Cash balance and explorer link (https://github.com/Toporin/Satochip-Utils/issues/41):
+the Fullstack.cash API no longer serves data, so `get_coin_info()` failed for BCH and BCH testnet.
+The new `FulcrumExplorer` fetches balances from public Electrum protocol (Fulcrum) servers over TLS
+with `blockchain.address.get_balance`. Mainnet addresses link to blockchair.com; testnet (chipnet)
+has no supported explorer link.
+
 Fix Polygon testnet having no explorer link (https://github.com/Toporin/Satochip-Utils/issues/42):
 Blockscout does not host Polygon Amoy, so `get_coin_info()` always failed for POLTEST. The new
 `JsonRpcExplorer` reads the balance from public Amoy JSON-RPC nodes (no API key needed) and links
