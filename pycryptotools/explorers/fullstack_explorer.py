@@ -1,7 +1,6 @@
 import logging
-import json
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict
 import requests
 
 from pycryptotools.coins.base_coin import BaseCoin
@@ -35,11 +34,11 @@ class FullstackExplorer(BlockExplorer):
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     """API"""
 
@@ -65,7 +64,7 @@ class FullstackExplorer(BlockExplorer):
             balance = balance / (10 ** 8)  # in BCH
             coin_info['balance'] = balance
         else:
-            raise ValueError(f"Failed to recover balance from FullstackExplorer")
+            raise ValueError("Failed to recover balance from FullstackExplorer")
 
         # get exchange rate from third party
         try:

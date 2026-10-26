@@ -333,10 +333,9 @@ def subtract_privkeys(p1, p2):
 
 def bin_hash160(string):
     intermed = hashlib.sha256(string).digest()
-    digest = ''
     try:
         digest = hashlib.new('ripemd160', intermed).digest()
-    except:
+    except ValueError:  # ripemd160 not available in this OpenSSL build
         digest = RIPEMD160(intermed).digest()
     return digest
 
@@ -357,7 +356,7 @@ def sha256(string):
 def bin_ripemd160(string):
     try:
         digest = hashlib.new('ripemd160', string).digest()
-    except:
+    except ValueError:  # ripemd160 not available in this OpenSSL build
         digest = RIPEMD160(string).digest()
     return digest
 
@@ -435,7 +434,7 @@ def get_version_byte(inp):
     leadingzbytes = len(re.match('^1*', inp).group(0))
     data = b'\x00' * leadingzbytes + changebase(inp, 58, 256)
     assert bin_dbl_sha256(data[:-4])[:4] == data[-4:]
-    return ord(data[0])
+    return data[0]
 
 
 def hex_to_b58check(inp, magicbyte=0):
@@ -466,14 +465,14 @@ def is_privkey(priv):
     try:
         get_privkey_format(priv)
         return True
-    except:
+    except Exception:
         return False
 
 def is_pubkey(pubkey):
     try:
         get_pubkey_format(pubkey)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -544,7 +543,7 @@ def ecdsa_verify_addr(msg, sig, addr, coin):
     assert coin.is_address(addr)
     Q = ecdsa_recover(msg, sig)
     magic = get_version_byte(addr)
-    return (addr == coin.pubtoaddr(Q, int(magic))) or (addr == coin.pubtoaddr(compress(Q), int(magic)))
+    return (addr == pubkey_to_legacy_address(Q, magic)) or (addr == pubkey_to_legacy_address(compress(Q), magic))
 
 
 def ecdsa_verify(msg, sig, pub, coin):

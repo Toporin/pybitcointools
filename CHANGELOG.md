@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.3 - Unreleased]
 
+Bug fixes and code quality:
+* `Bitcoin.is_address()`/`is_p2sh()` crashed (missing `address_prefixes`), which also broke
+  `ecdsa_sign()`, `ecdsa_verify()` and `addrtoscript()` for base58 addresses
+* `ecdsa_verify()` by address and `get_version_byte()` failed on Python 3
+* P2WSH output scripts used a 20-byte push length for 32-byte programs (invalid script)
+* `serialize_script()` encoded the integer 16 as `0x10` instead of `OP_16`
+* `words_verify()` always returned False; `deterministic.electrum_address()` raised NameError
+* Blockscout: tokens were overwritten by NFTs in `get_asset_list()`, and a missing exchange rate
+  (e.g. on testnets) made `get_coin_info()` fail; it is now returned as None
+* Coingate/Tokenscan: invalid price data is handled, NFT descriptions are stored
+* explorer HTTP requests use a 20s timeout instead of potentially hanging forever
+* Dogecoin testnet `coin_symbol` is now `DOGETEST` (was `Dogecoin`)
+* `words_mine()` uses `secrets` instead of `random` for entropy
+* `cryptotool` script works again (stale `cryptos` imports)
+* `python_requires` raised to 3.7 (the package already required `dataclasses`)
+* remove unused imports and dead code, avoid bare `except:`
+
 Fix Bitcoin Cash balance and explorer link (https://github.com/Toporin/Satochip-Utils/issues/41):
 the Fullstack.cash API no longer serves data, so `get_coin_info()` failed for BCH and BCH testnet.
 The new `FulcrumExplorer` fetches balances from public Electrum protocol (Fulcrum) servers over TLS

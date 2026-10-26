@@ -1,13 +1,11 @@
 import logging
-import json
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict
 import requests
 
 from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.explorers.block_explorer import BlockExplorer
-from pycryptotools.explorers.coingate_price_explorer import Coingate
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
 
 _logger = logging.getLogger(__name__)
@@ -17,7 +15,6 @@ class BlockstreamExplorer(BlockExplorer):
 
     def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
         super().__init__(coin, apikeys)
-        self.price_explorer = Coingate(coin, apikeys)
 
     """Utilities"""
 
@@ -35,11 +32,11 @@ class BlockstreamExplorer(BlockExplorer):
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     """API"""
 
@@ -50,7 +47,7 @@ class BlockstreamExplorer(BlockExplorer):
         url = f"{self.get_api_url()}address/{addr}"
         _logger.debug("GET %s", url)
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         if response.status_code != 200:
             _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
             raise DataFetcherError(DataFetcherError.INVALID_URL)

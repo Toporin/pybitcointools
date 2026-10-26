@@ -1,4 +1,3 @@
-from .base_coin import BaseCoin
 from .bitcoin import Bitcoin
 from ..explorers.coingate_price_explorer import Coingate
 from ..explorers.fulcrum_explorer import FulcrumExplorer

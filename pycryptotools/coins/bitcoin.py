@@ -52,6 +52,7 @@ class Bitcoin(BaseCoin):
 
     def __init__(self, testnet=False, **kwargs):
         super().__init__(testnet, **kwargs)
+        self.address_prefixes = magicbyte_to_prefix(magicbyte=self.magicbyte)
         if self.script_magicbyte:
             self.script_prefixes = magicbyte_to_prefix(magicbyte=self.script_magicbyte)
         else:

@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict
 from decimal import Decimal
 import requests
 
@@ -41,7 +41,7 @@ class TokenscanExplorer(BlockExplorer):
             url = f"{self.get_url()}api/address/{addr}"
             _logger.debug("GET %s", url)
 
-            response = requests.get(url)
+            response = requests.get(url, timeout=20)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -71,7 +71,7 @@ class TokenscanExplorer(BlockExplorer):
             url = f"{self.get_url()}api/balances/{addr}"
             _logger.debug("GET %s", url)
 
-            response = requests.get(url)
+            response = requests.get(url, timeout=20)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -122,13 +122,13 @@ class TokenscanExplorer(BlockExplorer):
                                 elif description.endswith(".json"):
                                     json_link = description
                                     _logger.debug("GET %s", json_link)
-                                    response2 = requests.get(json_link)
+                                    response2 = requests.get(json_link, timeout=20)
                                     res2 = response2.json()
                                     asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
                                     #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))
 
                                 else:
-                                    asset["nft_description"] += description
+                                    asset["nft_description"] = description
 
                         except Exception as ex:
                             _logger.warning("Failed to get NFT info from asset description: %s", ex)

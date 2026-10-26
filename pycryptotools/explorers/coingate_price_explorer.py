@@ -1,9 +1,9 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Optional
 import requests
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.explorers.price_explorer import PriceExplorer
@@ -80,7 +80,7 @@ class Coingate(PriceExplorer):
         _logger.debug("GET %s", url)
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=20)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -98,7 +98,7 @@ class Coingate(PriceExplorer):
                 )
 
                 return rate
-            except ValueError:
+            except (ValueError, InvalidOperation):
                 raise DataFetcherError(DataFetcherError.MISSING_DATA)
 
         except requests.exceptions.RequestException:

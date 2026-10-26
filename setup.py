@@ -41,5 +41,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
         'Topic :: Security :: Cryptography',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )

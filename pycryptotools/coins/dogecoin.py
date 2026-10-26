@@ -12,7 +12,7 @@ class Doge(Bitcoin):
     xpub_prefix = 0x02fac398
     testnet_overrides = {
         'display_name': "Dogecoin Testnet",
-        'coin_symbol': "Dogecoin",
+        'coin_symbol': "DOGETEST",
         'magicbyte': 113,
         'script_magicbyte': 196,
         'wif_prefix': 0xf1, #https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp#L157 => base58Prefixes[SECRET_KEY]

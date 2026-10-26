@@ -1,7 +1,6 @@
 import logging
-import json
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict
 import requests
 
 from pycryptotools.coins.base_coin import BaseCoin
@@ -32,11 +31,11 @@ class LitecoinspaceExplorer(BlockExplorer):
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     """API"""
 
@@ -47,7 +46,7 @@ class LitecoinspaceExplorer(BlockExplorer):
         url = f"{self.get_api_url()}address/{addr}"
         _logger.debug("GET %s", url)
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         if response.status_code != 200:
             _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
             raise DataFetcherError(DataFetcherError.INVALID_URL)

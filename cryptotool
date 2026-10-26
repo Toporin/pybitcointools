@@ -1,6 +1,10 @@
-#!/usr/bin/python
-from cryptos import *
+#!/usr/bin/env python3
 import json
+import re
+import sys
+
+from pycryptotools import *
+from pycryptotools.coins import *
 
 coins = {
     'bch': BitcoinCash,
@@ -11,7 +15,7 @@ coins = {
 }
 
 if len(sys.argv) == 1:
-    print("pybtctool <command> <arg1> <arg2> ...")
+    print("cryptotool <command> <arg1> <arg2> ...")
 else:
     coin = Bitcoin
     testnet = False
@@ -39,7 +43,7 @@ else:
             try:
                 coin = coins[coinname]
             except KeyError:
-                raise Exception('Coin %s not recognised. Choose from: %s ' % (coin, ','.join(coins.keys())))
+                raise Exception('Coin %s not recognised. Choose from: %s ' % (coinname, ','.join(coins.keys())))
             i += 2
         elif sys.argv[i][:2] == '--':
             kwargs[sys.argv[i][2:]] = sys.argv[i+1]

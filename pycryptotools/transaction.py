@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import binascii, re, copy
 from .main import *
-from _functools import reduce
+from functools import reduce
 
 ### Hex to bin converter and vice versa for objects
 
@@ -350,7 +350,7 @@ def mk_p2w_scripthash_script(witver, witprog):
     """
     assert (0 <= witver <= 16)
     OP_n = witver + 0x50 if witver > 0 else 0
-    return bytes_to_hex_string([OP_n]) + '14' + (bytes_to_hex_string(witprog))
+    return bytes_to_hex_string([OP_n]) + '%02x' % len(witprog) + (bytes_to_hex_string(witprog))
 
 def mk_p2wpkh_redeemscript(pubkey):
     """
@@ -405,7 +405,7 @@ def deserialize_script(script):
 
 def serialize_script_unit(unit):
     if isinstance(unit, int):
-        if unit < 16:
+        if unit <= 16:
             return from_int_to_byte(unit + 80)
         else:
             return from_int_to_byte(unit)
@@ -486,8 +486,6 @@ def apply_multisignatures(txobj, i, script, *args):
     sigs = [binascii.unhexlify(x) if x[:2] == '30' else x for x in sigs]
     if not isinstance(txobj, dict):
         txobj = deserialize(txobj)
-    if isinstance(txobj, str) and re.match('^[0-9a-fA-F]*$', txobj):
-        return safe_hexlify(apply_multisignatures(binascii.unhexlify(txobj), i, script, sigs))
 
     # Not pushing empty elements on the top of the stack if passing no
     # script (in case of bare multisig inputs there is no script)
@@ -514,6 +512,4 @@ def select(unspent, value):
         i += 1
     if tv < value:
         raise Exception("Not enough funds")
-    unspents = low[:i]
-    actual_value = sum(unspent['value'] for unspent in unspents)
     return low[:i]

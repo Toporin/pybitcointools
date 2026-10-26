@@ -128,8 +128,8 @@ class TestElectrumWalletInternalConsistency(unittest.TestCase):
         change_pubkey200 = electrum_pubkey(mpk, 200, 1)
         change_privkey200 = electrum_privkey(self.seed_from_password, 200, 1)
         self.assertEqual(change_pubkey200, privtopub(change_privkey200))
-        self.assertEqual(coin.electrum_address(mpk, 0, 200), coin.electrum_address(self.seed_from_password, 0, 200))
-        self.assertEqual(Dash().electrum_address(mpk, 0, 200), Dash().electrum_address(self.seed_from_password, 0, 200))
+        self.assertEqual(coin.electrum_address(mpk, 200, 1), coin.electrum_address(self.seed_from_password, 200, 1))
+        self.assertEqual(Dash().electrum_address(mpk, 200, 1), Dash().electrum_address(self.seed_from_password, 200, 1))
 
     def test_all(self):
         for i in range(3):
@@ -544,6 +544,81 @@ class TestConversions(unittest.TestCase):
                 self.privkey_bin, 256, 16, minlen=len(self.privkey_hex)
             )
         )
+
+class TestRegressions(unittest.TestCase):
+    """Offline regression tests for bugs fixed in 0.3.3"""
+
+    def test_is_address(self):
+        coin = Bitcoin()
+        self.assertTrue(coin.is_address("1BoatSLRHtKNngkdXEeobR76b53LETtpyT"))
+        self.assertTrue(coin.is_address("3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"))
+        self.assertFalse(coin.is_p2sh("1BoatSLRHtKNngkdXEeobR76b53LETtpyT"))
+        self.assertTrue(coin.is_p2sh("3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"))
+
+    def test_sign_verify_message(self):
+        coin = Bitcoin()
+        priv = sha256("regression key")
+        pub = privtopub(priv)
+        sig = ecdsa_sign("hello", priv, coin)  # used to fail on coin.is_address()
+        self.assertTrue(ecdsa_verify("hello", sig, pub, coin))
+        self.assertFalse(ecdsa_verify("goodbye", sig, pub, coin))
+        for addr in (pubkey_to_legacy_address(pub), pubkey_to_legacy_address(compress(pub))):
+            self.assertTrue(ecdsa_verify("hello", sig, addr, coin))
+        self.assertEqual(get_version_byte("1BoatSLRHtKNngkdXEeobR76b53LETtpyT"), 0)
+
+    def test_p2wsh_output_script(self):
+        witprog = bytes(range(32))
+        script = Bitcoin().addrtoscript(segwit_addr.encode("bc", 0, witprog))
+        self.assertEqual(script, "0020" + witprog.hex())
+        # p2wpkh is unchanged
+        script = Bitcoin().addrtoscript(segwit_addr.encode("bc", 0, bytes(20)))
+        self.assertEqual(script, "0014" + "00" * 20)
+
+    def test_serialize_small_ints(self):
+        pub = bytes([2]) + bytes(32)
+        for n in range(1, 17):  # e.g. M and N of a multisig script
+            script = serialize_script([n, pub, 0xae])
+            self.assertEqual(script, bytes([0x50 + n, 33]) + pub + bytes([0xae]))
+            self.assertEqual(deserialize_script(script), [n, pub, 0xae])
+
+    def test_words_verify(self):
+        words = "tonight stem cause eyebrow estate smart duck wrong toe under job danger".split()
+        self.assertTrue(words_verify(words))
+        self.assertFalse(words_verify(words[:-1] + ["abandon"]))
+        # 24 words with leading zero entropy bits
+        self.assertTrue(words_verify(["abandon"] * 23 + ["art"]))
+
+    def test_electrum_address(self):
+        import pycryptotools.deterministic as deterministic
+        seed = sha256("electrum seed")[:32]
+        self.assertEqual(deterministic.electrum_address(seed, 0),
+                         pubkey_to_legacy_address(electrum_pubkey(seed, 0)))
+
+    def test_blockscout_missing_exchange_rate(self):
+        from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+        data = {'coin_balance': '1500000000000000000', 'exchange_rate': None}
+        coin_info = BlockscoutExplorer.parse_coin_info_json(data)
+        self.assertEqual(coin_info['balance'], 1.5)
+        self.assertIsNone(coin_info['exchange_rate'])
+
+    def test_blockscout_asset_list_keeps_tokens_and_nfts(self):
+        from unittest import mock
+        from pycryptotools.coins.asset_type import AssetType
+        from pycryptotools.explorers import blockscout_explorer
+
+        def fake_get(url, timeout=None):
+            response = mock.Mock(status_code=200)
+            if '/nft' in url:
+                response.json.return_value = {'items': [{'id': '1', 'token': {'type': 'ERC-721', 'name': 'NFT'}}]}
+            else:
+                response.json.return_value = {'items': [{'value': '1', 'token': {'type': 'ERC-20', 'name': 'TOKEN', 'decimals': '0'}}]}
+            return response
+
+        coin = Ethereum()
+        with mock.patch.object(blockscout_explorer.requests, 'get', side_effect=fake_get):
+            asset_list = coin.get_asset_list("0x0000000000000000000000000000000000000001")
+        self.assertEqual(sorted(a['type'].name for a in asset_list), [AssetType.NFT.name, AssetType.TOKEN.name])
+
 
 if __name__ == '__main__':
     unittest.main()

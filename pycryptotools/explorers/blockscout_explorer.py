@@ -1,7 +1,7 @@
 import json
 import logging
-from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union, Any
+from decimal import Decimal, InvalidOperation
+from typing import Dict, Union, Any
 import requests
 
 from pycryptotools.coins.base_coin import BaseCoin
@@ -58,7 +58,7 @@ class BlockscoutExplorer(BlockExplorer):
         url = f"{self.get_api_url()}addresses/{addr}"
         _logger.debug("GET %s", url)
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         if response.status_code != 200:
             if response.status_code == 404:
                 # Not found in blockchain
@@ -93,7 +93,7 @@ class BlockscoutExplorer(BlockExplorer):
         _logger.debug("GET %s", url)
 
         # todo: pagination https://docs.blockscout.com/devs/apis/rest
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         if response.status_code != 200:
             if response.status_code == 404:
                 # Not found in blockchain
@@ -109,20 +109,20 @@ class BlockscoutExplorer(BlockExplorer):
         url = f"{self.get_api_url()}addresses/{addr}/nft"  # no erc20, but erc721, erc404 & erc1155
         _logger.debug("GET %s", url)
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
         if response.status_code != 200:
             if response.status_code == 404:
-                # Not found in blockchain
+                # no NFT found: keep the tokens already recovered
                 _logger.debug("Address not found on chain: %s", url)
-                return []
+                data_nft = {}
             else:
                 _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
+        else:
+            data_nft = response.json()
 
-        data_nft = response.json()
-
-        # merge toke & nft data
-        data.update(data_nft)
+        # merge token & nft data (both responses list assets under 'items')
+        data['items'] = data.get('items', []) + data_nft.get('items', [])
 
         asset_list = self.parse_asset_list_json(addr, data)
         _logger.debug("asset_list: %s", asset_list)
@@ -155,13 +155,17 @@ class BlockscoutExplorer(BlockExplorer):
 
             parsed_data = {}
             parsed_data['balance'] = coin_balance_eth
-            parsed_data['exchange_rate'] = Decimal(data.get('exchange_rate'))
+            try:
+                parsed_data['exchange_rate'] = Decimal(data.get('exchange_rate'))
+            except (TypeError, InvalidOperation):
+                # no price available, e.g. on testnets
+                parsed_data['exchange_rate'] = None
             parsed_data['currency'] = "USD"
             parsed_data['ens_domain'] = data.get('ens_domain_name')
 
             return parsed_data
 
-        except (json.JSONDecodeError, ValueError) as e:
+        except (json.JSONDecodeError, ValueError, InvalidOperation) as e:
             #raise ValueError(f"Error parsing JSON data: {e}")
             parsed_data = {
                 'error': str(e)

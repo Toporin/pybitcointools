@@ -715,7 +715,7 @@ class BitcoinCashTestCase(unittest.TestCase):
         # https://github.com/Toporin/Satochip-Utils/issues/41
         test_explorer(self.coin, ADDRESS_BCHTEST_EXPLORER)
         coin_info = self.coin.get_coin_info(ADDRESS_BCHTEST_EXPLORER[0])
-        self.assertEqual(coin_info['address_explorer_url'], "(not supported)")
+        self.assertIsNone(coin_info['address_explorer_url'])  # no explorer for chipnet
         self.assertIn('balance', coin_info)
 
 

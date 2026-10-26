@@ -1,4 +1,5 @@
 import random
+import secrets
 from pbkdf2 import PBKDF2
 import hmac
 from .py2specials import *
@@ -75,7 +76,7 @@ def normalize_text(seed):
 
 
 def eint_to_bytes(entint,entbits):
-    a=hex(entint)[2:].rstrip('L').zfill(32)
+    a=hex(entint)[2:].rstrip('L').zfill(entbits//4)
     return binascii.unhexlify(a)
 
 def mnemonic_int_to_words(mint,mint_num_words,wordlist=wordlist_english):
@@ -139,7 +140,7 @@ def words_verify(words,wordlist=wordlist_english):
     eint=mint >> cs_bits
     csint=mint & ((1 << cs_bits)-1)
     ebytes = eint_to_bytes(eint,entropy_bits)
-    return csint == entropy_cs(ebytes)
+    return csint == entropy_cs(ebytes)[0]
 
 def bip39_normalize_passphrase(passphrase):
     return unicodedata.normalize('NFKD', passphrase or '')
@@ -215,7 +216,7 @@ is_seed = lambda x: bool(seed_type(x))
 
 
 
-def words_mine(prefix,entbits,satisfunction,wordlist=wordlist_english,randombits=random.getrandbits):
+def words_mine(prefix,entbits,satisfunction,wordlist=wordlist_english,randombits=secrets.randbits):
     prefix_bits=len(prefix)*11
     mine_bits=entbits-prefix_bits
     pint=words_to_mnemonic_int(prefix,wordlist)

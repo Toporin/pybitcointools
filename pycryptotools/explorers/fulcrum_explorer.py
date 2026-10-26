@@ -4,7 +4,7 @@ import random
 import socket
 import ssl
 from decimal import Decimal
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
@@ -47,7 +47,7 @@ class FulcrumExplorer(BlockExplorer):
 
     """Utilities"""
 
-    def get_address_web_url(self, addr: str) -> str | None:
+    def get_address_web_url(self, addr: str) -> Optional[str]:
         """Get web link for an address"""
         if self.coin_symbol == "BCH":
             return f"https://blockchair.com/bitcoin-cash/address/{addr}"
@@ -55,11 +55,11 @@ class FulcrumExplorer(BlockExplorer):
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     def get_nft_web_url(self, contract: str, tokenid: str) -> str:
         """Get web link for a token"""
-        return f"(not supported)"
+        return "(not supported)"
 
     @staticmethod
     def _ssl_context() -> ssl.SSLContext:

@@ -33,11 +33,11 @@ class UnsupportedCoin(BaseCoin):
     }
 
     def get_address_web_url(self, addr: str) -> str:
-        # raise ValueError(f"Unsupported coin!")
+        # raise ValueError("Unsupported coin!")
         return "https://example.com"
 
     def get_coin_info(self, addr) -> Dict[str, Any]:
-        # raise ValueError(f"Unsupported coin!")
+        # raise ValueError("Unsupported coin!")
         coin_info= {}
         coin_info['symbol'] = self.coin_symbol
         coin_info['name'] = self.display_name
@@ -53,7 +53,7 @@ class UnsupportedCoin(BaseCoin):
         ######################################
 
     def get_exchange_rate_with(self, other_coin: str):
-        raise ValueError(f"Unsupported coin!")
+        raise ValueError("Unsupported coin!")
 
 
     def pubtoaddr(self, pubkey):

@@ -46,7 +46,7 @@ def electrum_pubkey(masterkey, n, for_change=0):
 
 
 def electrum_address(masterkey, n, for_change=0, magicbyte=0):
-    return pubkey_to_address(electrum_pubkey(masterkey, n, for_change), magicbyte)
+    return pubkey_to_legacy_address(electrum_pubkey(masterkey, n, for_change), magicbyte)
 
 # Given a master public key, a private key from that wallet and its index,
 # cracks the secret exponent which can be used to generate all other private
