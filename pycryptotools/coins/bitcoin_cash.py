@@ -42,7 +42,6 @@ class BitcoinCash(Bitcoin):
         """
         #addr_legacy= super(BitcoinCash, self).pubtoaddr(pubkey, magicbyte=self.magicbyte)
         addr_legacy= super().pubtolegacy(pubkey)
-        print("ADDR_LEGACY: "+addr_legacy)
         addr= convert.to_cash_address(addr_legacy) #cashAddr conversion
         
         return addr

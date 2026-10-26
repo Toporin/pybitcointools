@@ -1,6 +1,9 @@
+import logging
 import requests
 
 # TODO refactor into a BlockExplorer class (or remove)
+
+_logger = logging.getLogger(__name__)
 
 utxo_url = "%s/address/%s/utxo"
 address_url = "%s/address/%s"
@@ -38,9 +41,8 @@ def get_nft_info(contract:str, tokenID:str, apikeys={}):
         base_url = get_api_url()
         url= base_url + "asset/"+contract+"/" + tokenID
         
-        print(f"DEBUG OPENSEA URL: {url}")
+        _logger.debug("GET %s", url)
         response = requests.get(url, headers=headers) # requests.get(url, headers=headers)
-        print(f"DEBUG OPENSEA RESPONSE: {response}")
         
         # parse json
         data = response.json()
@@ -57,7 +59,7 @@ def get_nft_info(contract:str, tokenID:str, apikeys={}):
         nftInfoMap["nft_explorer_link"]=get_nft_weburl(contract, tokenID)
         
     except Exception as ex:
-        print(f"DEBUG OPENSEA Exception in get_nft_info: {ex}")
+        _logger.warning("Failed to get NFT info from OpenSea: %s", ex)
         
     return nftInfoMap
     

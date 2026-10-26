@@ -1,6 +1,9 @@
+import logging
 import requests
 
 # TODO refactor into a BlockExplorer class (or remove)
+
+_logger = logging.getLogger(__name__)
 
 def get_url(coin_symbol):
     if coin_symbol == "BSC":
@@ -25,16 +28,14 @@ def balance(addr, coin_symbol="BSC", apikeys={}):
     apikey= apikeys.get('API_KEY_BSCSCAN','0')    
     base_url = get_url(coin_symbol)
     url= base_url + "?module=account&action=balance&address=" + addr + "&tag=latest&apikey=" + apikey
-    print(f"DEBUG BSCSCAN {url}")
+    # url embeds the API key: log the endpoint only
+    _logger.debug("GET %s action=balance for: %s", base_url, addr)
     response = requests.get(url)
-    print(f"DEBUG BSCSCAN {response}")
     
     if response.text == "[]":
         return []
     try:
         outputs = response.json()
-        print("debug outputs type:"+str(type(outputs)))
-        print("debug outputs :"+str(outputs))
         balance= outputs['result'] # in str format
         balance= int(balance) 
         balance= balance/(10**18) # wei to ether
@@ -55,18 +56,14 @@ def balance_token(addr:str, contract:str, coin_symbol="ETH", apikeys={}):
     
     apikey= apikeys.get('API_KEY_BSCSCAN','0')    
     base_url = get_url(coin_symbol)
-    print(f"DEBUG BSCSCAN B {base_url}")
     url= base_url + "?module=account&action=tokenbalance&contractaddress="+contract+"&address=" + addr + "&tag=latest&apikey=" + apikey
-    print(f"DEBUG BSCSCAN {url}")
+    _logger.debug("GET %s action=tokenbalance for: %s, contract: %s", base_url, addr, contract)
     response = requests.get(url)
-    print(f"DEBUG BSCSCAN {response}")
     
     if response.text == "[]":
         return []
     try:
         outputs = response.json()
-        print("debug outputs type:"+str(type(outputs)))
-        print("debug outputs :"+str(outputs))
         balance= outputs['result'] # in str format
         balance= int(balance) 
         #balance= balance/(10**18) # most ERC20 use 18 decimals but etherscan does not offer reliable way to find out...

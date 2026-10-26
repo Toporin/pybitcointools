@@ -1,6 +1,9 @@
+import logging
 import requests
 
 # TODO refactor into a BlockExplorer class (or remove)
+
+_logger = logging.getLogger(__name__)
 
 def get_url(coin_symbol):
     if coin_symbol == "ETH":
@@ -30,16 +33,14 @@ def balance(addr, coin_symbol="ETH", apikeys={}):
     apikey= apikeys.get('API_KEY_ETHERSCAN','0')    
     base_url = get_url(coin_symbol)
     url= base_url + "?module=account&action=balance&address=" + addr + "&tag=latest&apikey=" + apikey
-    print(f"DEBUG ETHERSCAN {url}")
+    # url embeds the API key: log the endpoint only
+    _logger.debug("GET %s action=balance for: %s", base_url, addr)
     response = requests.get(url, headers=headers)
-    print(f"DEBUG ETHERSCAN {response}")
     
     if response.text == "[]":
         return []
     try:
         outputs = response.json()
-        print("debug outputs type:"+str(type(outputs)))
-        print("debug outputs :"+str(outputs))
         balance= outputs['result'] # in str format
         balance= int(balance) 
         balance= balance/(10**18) # wei to ether
@@ -64,19 +65,15 @@ def balance_token(addr:str, contract:str, coin_symbol="ETH", apikeys={}):
     
     apikey= apikeys.get('API_KEY_ETHERSCAN','0')    
     base_url = get_url(coin_symbol)
-    print(f"DEBUG ETHERSCAN B {base_url}")
     #url = utxo_url % (base_url, '|'.join(addrs))
     url= base_url + "?module=account&action=tokenbalance&contractaddress="+contract+"&address=" + addr + "&tag=latest&apikey=" + apikey
-    print(f"DEBUG ETHERSCAN {url}")
+    _logger.debug("GET %s action=tokenbalance for: %s, contract: %s", base_url, addr, contract)
     response = requests.get(url, headers=headers)
-    print(f"DEBUG ETHERSCAN {response}")
     
     if response.text == "[]":
         return []
     try:
         outputs = response.json()
-        print("debug outputs type:"+str(type(outputs)))
-        print("debug outputs :"+str(outputs))
         balance= outputs['result'] # in str format
         balance= int(balance) 
         #balance= balance/(10**18) # most ERC20 use 18 decimals but etherscan does not offer reliable way to find out...
@@ -95,8 +92,6 @@ def get_token_info(addr:str, contract:str, coin_symbol="ETH", apikeys={}):
         return []
     try:
         token_info = response.json()
-        print("debug outputs type:"+str(type(token_info)))
-        print("debug outputs :"+str(token_info))
         return token_info
     except (ValueError, KeyError):
         raise Exception("get_token_info: unable to decode JSON from result: %s" % response.text)

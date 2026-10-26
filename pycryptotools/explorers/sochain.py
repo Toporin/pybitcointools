@@ -25,7 +25,6 @@ def balance(addr, coin_symbol="LTC", apikeys={}):
     response = requests.get(url)
     try:
         result = response.json()
-        print(f"DEBUG SOCHAIN {result}")
         if 'data' in result.keys():
             balance= int(result['data']['confirmed_balance'].replace('.', '')) # balance in sats...
             balance= balance/(10**8) #TODO: use Decimal for better precision?
@@ -41,7 +40,6 @@ def unspent(addr, coin_symbol="LTC"):
     #print(f"DEBUG SOCHAIN {response}")
     try:
         result = response.json()
-        print(f"DEBUG SOCHAIN {result}")
         if 'data' in result.keys() and 'txs' in result['data'].keys():
             txs = response.json()['data']['txs']
             for i, tx in enumerate(txs):

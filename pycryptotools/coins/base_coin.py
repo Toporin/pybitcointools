@@ -1,8 +1,11 @@
+import logging
 from abc import abstractmethod
 from typing import List
 
 import pycryptotools
 from ..main import *
+
+_logger = logging.getLogger(__name__)
 
 class BaseCoin(object):
     """
@@ -66,7 +69,7 @@ class BaseCoin(object):
             try:
                 return explorer.get_address_web_url(addr)
             except Exception as ex:
-                print(f"Failed to get address web url from {explorer}: {str(ex)}")
+                _logger.warning("Failed to get address web url from %s: %s", type(explorer).__name__, ex)
 
         # if not explorers returned to info, raise
         raise ValueError(f"Failed to recover url from explorers!")
@@ -77,7 +80,7 @@ class BaseCoin(object):
                 coin_info = explorer.get_coin_info(addr)
                 return coin_info
             except Exception as ex:
-                print(f"Failed to get coin_info from {explorer}: {str(ex)}")
+                _logger.warning("Failed to get coin_info from %s: %s", type(explorer).__name__, ex)
 
         # if not explorers returned to info, raise
         raise ValueError(f"Failed to recover coin info from explorers!")
@@ -88,7 +91,7 @@ class BaseCoin(object):
                 asset_list = explorer.get_asset_list(addr)
                 return asset_list
             except Exception as ex:
-                print(f"Failed to get asset list from {explorer}: {str(ex)}")
+                _logger.warning("Failed to get asset list from %s: %s", type(explorer).__name__, ex)
 
         # if not explorers returned to info, raise
         raise ValueError(f"Failed to recover asset list from explorers!")
@@ -103,7 +106,7 @@ class BaseCoin(object):
                 rate = explorer.get_exchange_rate_between(other_coin)
                 return rate
             except Exception as ex:
-                print(f"Failed to get exchange rate from {explorer}: {str(ex)}")
+                _logger.warning("Failed to get exchange rate from %s: %s", type(explorer).__name__, ex)
 
         # if not explorers returned to info, raise
         raise ValueError(f"Failed to get exchange rate from explorers!")

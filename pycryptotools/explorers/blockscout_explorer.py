@@ -1,4 +1,5 @@
 import json
+import logging
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Union, Any
 import requests
@@ -7,6 +8,8 @@ from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
+
+_logger = logging.getLogger(__name__)
 
 
 class BlockscoutExplorer(BlockExplorer):
@@ -50,10 +53,10 @@ class BlockscoutExplorer(BlockExplorer):
 
     def get_coin_info(self, addr):
         """Get native coin info for an address"""
-        print(f"In BlockscoutExplorer get_coin_info for: {addr}")
+        _logger.debug("BlockscoutExplorer get_coin_info for: %s", addr)
 
         url = f"{self.get_api_url()}addresses/{addr}"
-        print(f"urlString: {url}")
+        _logger.debug("GET %s", url)
 
         response = requests.get(url)
         if response.status_code != 200:
@@ -65,9 +68,10 @@ class BlockscoutExplorer(BlockExplorer):
                 coin_info['name'] = self.coin.display_name
                 coin_info['type'] = AssetType.COIN
                 coin_info['address_explorer_url'] = self.get_address_web_url(addr)
-                print(f"NOT FOUND! coin_info: {coin_info}")
+                _logger.debug("Address not found on chain, coin_info: %s", coin_info)
                 return coin_info
             else:
+                _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
@@ -76,41 +80,43 @@ class BlockscoutExplorer(BlockExplorer):
         coin_info['name'] = self.coin.display_name
         coin_info['type'] = AssetType.COIN
         coin_info['address_explorer_url'] = self.get_address_web_url(addr)
-        print(f"Found coin_info: {coin_info}")
+        _logger.debug("coin_info: %s", coin_info)
         return coin_info
 
     def get_asset_list(self, addr):
         """Get asset info for an address"""
-        print(f"In BlockscoutExplorer get_asset_list for: {addr}")
+        _logger.debug("BlockscoutExplorer get_asset_list for: %s", addr)
 
         # url = f"{self.get_api_url()}addresses/{addr}/tokens?type=ERC-20%2CERC-721%2CERC-1155"
         # url = f"{self.get_api_url()}addresses/{addr}/tokens"
         url = f"{self.get_api_url()}addresses/{addr}/tokens?type=ERC-20" # only erc20
-        print(f"urlString: {url}")
+        _logger.debug("GET %s", url)
 
         # todo: pagination https://docs.blockscout.com/devs/apis/rest
         response = requests.get(url)
         if response.status_code != 200:
-            print(f"Failed to recover data from url {url}, response status {response.status_code}")
             if response.status_code == 404:
                 # Not found in blockchain
+                _logger.debug("Address not found on chain: %s", url)
                 return []
             else:
+                _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
 
         # get nfts
         url = f"{self.get_api_url()}addresses/{addr}/nft"  # no erc20, but erc721, erc404 & erc1155
-        print(f"urlString: {url}")
+        _logger.debug("GET %s", url)
 
         response = requests.get(url)
         if response.status_code != 200:
-            print(f"Failed to recover data from url {url}, response status {response.status_code}")
             if response.status_code == 404:
                 # Not found in blockchain
+                _logger.debug("Address not found on chain: %s", url)
                 return []
             else:
+                _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data_nft = response.json()
@@ -119,7 +125,7 @@ class BlockscoutExplorer(BlockExplorer):
         data.update(data_nft)
 
         asset_list = self.parse_asset_list_json(addr, data)
-        print(f"asset_list: {asset_list}")
+        _logger.debug("asset_list: %s", asset_list)
         return asset_list
 
     """Parsers"""
@@ -138,7 +144,6 @@ class BlockscoutExplorer(BlockExplorer):
         try:
             # Parse JSON if string, otherwise use the dict directly
             data = json.loads(json_data) if isinstance(json_data, str) else json_data
-            print(f"DEBUG: data from blockscout: {data}")
 
             # Convert balance from wei to ether if present
             coin_balance_wei = data.get('coin_balance', '0')
@@ -227,7 +232,7 @@ class BlockscoutExplorer(BlockExplorer):
                 asset['address_explorer_url'] = self.get_address_web_url(addr)
 
             except Exception as ex:
-                print(f"Exception in BlockscoutExplorer parse_asset_list_json: {ex}")
-                print(f"Exception in BlockscoutExplorer asset: {item}")
+                _logger.warning("Failed to parse asset in BlockscoutExplorer: %s", ex)
+                _logger.debug("Unparsed asset: %s", item)
 
         return asset_list

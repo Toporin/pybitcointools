@@ -24,12 +24,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 from unicodedata import normalize
 
 from .wallet_utils import pw_encode, pw_decode, hfu, InvalidPassword
 from .mnemonic import *
 from .deterministic import *
 from .main import *
+
+_logger = logging.getLogger(__name__)
 
 
 
@@ -378,12 +381,12 @@ class Hardware_KeyStore(KeyStore, Xpub):
     def unpaired(self):
         '''A device paired with the wallet was diconnected.  This can be
         called in any thread context.'''
-        print("unpaired")
+        _logger.info("Hardware device unpaired")
 
     def paired(self):
         '''A device paired with the wallet was (re-)connected.  This can be
         called in any thread context.'''
-        print("paired")
+        _logger.info("Hardware device paired")
 
     def can_export(self):
         return False

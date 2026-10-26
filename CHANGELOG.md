@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+Replace `print()` with the standard `logging` module:
+* each module logs to `pycryptotools.<module>`; the package logger has a `NullHandler`, so
+  nothing is output unless the application configures logging
+* new `pycryptotools.set_log_level(level)` sets the level of all pycryptotools loggers at once
+* security: BIP39 checksum validation (`words_verify`) no longer prints the mnemonic entropy
+  to stdout, and the Etherscan/BscScan modules no longer print request URLs containing the API key
+* remove leftover debug traces; explorer failures are logged as warnings, request traces as debug
+
+Note: output that used to be printed to stdout is now silent by default. Use
+`logging.basicConfig(level=logging.DEBUG)` (or `set_log_level()` with a configured handler) to
+see it.
+
 ## [0.3.2]: 
 
 Improve Blockscout explorer:

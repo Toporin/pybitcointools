@@ -1,3 +1,4 @@
+import logging
 import json
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Union, Any
@@ -8,6 +9,8 @@ from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.coingate_price_explorer import Coingate
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
+
+_logger = logging.getLogger(__name__)
 
 
 class BlockstreamExplorer(BlockExplorer):
@@ -42,14 +45,14 @@ class BlockstreamExplorer(BlockExplorer):
 
     def get_coin_info(self, addr):
         """Get native coin info for an address"""
-        print(f"In BlockstreamExplorer get_coin_info for: {addr}")
+        _logger.debug("BlockstreamExplorer get_coin_info for: %s", addr)
 
         url = f"{self.get_api_url()}address/{addr}"
-        print(f"urlString: {url}")
+        _logger.debug("GET %s", url)
 
         response = requests.get(url)
         if response.status_code != 200:
-            print(f"Failed to recover data from url {url}, response status {response.status_code}")
+            _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
             raise DataFetcherError(DataFetcherError.INVALID_URL)
 
         data = response.json()
@@ -57,11 +60,8 @@ class BlockstreamExplorer(BlockExplorer):
 
         # compute balance
         funded_txo_sum= Decimal(data['chain_stats']['funded_txo_sum'])
-        print(f"DEBUG blockstream funded_txo_sum {funded_txo_sum}")
         spent_txo_sum= Decimal(data['chain_stats']['spent_txo_sum'])
-        print(f"DEBUG blockstream spent_txo_sum {spent_txo_sum}")
         balance= (funded_txo_sum - spent_txo_sum)/(10**8)
-        print(f"DEBUG blockstream balance {balance}")
         coin_info['balance'] = balance
 
         # get exchange rate from third party
@@ -78,11 +78,11 @@ class BlockstreamExplorer(BlockExplorer):
         coin_info['name'] = self.coin.display_name
         coin_info['type'] = AssetType.COIN
         coin_info['address_explorer_url'] = self.get_address_web_url(addr)
-        print(f"coin_info: {coin_info}")
+        _logger.debug("coin_info: %s", coin_info)
         return coin_info
 
     def get_asset_list(self, addr):
         """Get asset info for an address"""
-        print(f"In BlockstreamExplorer get_asset_list for: {addr}")
+        _logger.debug("BlockstreamExplorer get_asset_list for: %s", addr)
 
         return []

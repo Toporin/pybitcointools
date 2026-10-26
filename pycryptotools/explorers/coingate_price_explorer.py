@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, Optional
@@ -7,6 +8,8 @@ from decimal import Decimal
 from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.explorers.price_explorer import PriceExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -55,7 +58,7 @@ class Coingate(PriceExplorer):
 
     def _get_exchange_rate(self, coin: str, other_coin: str) -> Decimal:
         """Internal method to fetch exchange rate with caching"""
-        print(f"Coingate getExchangeRateBetween: {coin} and {other_coin}")
+        _logger.debug("Coingate get exchange rate between %s and %s", coin, other_coin)
 
         # Return 1 if same coin
         if coin == other_coin:
@@ -66,16 +69,15 @@ class Coingate(PriceExplorer):
         if cache_key in self.cached_exchange_rate_dict:
             cached_data = self.cached_exchange_rate_dict[cache_key]
             time_diff = datetime.now() - cached_data.last_check
-            print(f"timeInterval {time_diff.total_seconds()}")
 
             # Cache data is valid for 300 seconds
             if time_diff.total_seconds() < 300:
-                print(f"fetch cached data for {cache_key}")
+                _logger.debug("Using cached rate for %s (age %.0fs)", cache_key, time_diff.total_seconds())
                 return Decimal(cached_data.exchange_rate)
 
         # Fetch new data
         url = f"{self.get_api_url()}{coin}/{other_coin}"
-        print(f"urlString: {url}")
+        _logger.debug("GET %s", url)
 
         try:
             response = requests.get(url)
@@ -84,14 +86,12 @@ class Coingate(PriceExplorer):
 
             # Get response text and convert to Decimal
             rate_str = response.text
-            print(f"Coingate getExchangeRateBetween data: {rate_str}")
 
             try:
                 rate = Decimal(rate_str)
-                print(f"Coingate getExchangeRateBetween rate: {rate}")
+                _logger.debug("Coingate rate for %s: %s", cache_key, rate)
 
                 # Cache the result
-                print(f"save cached data for {cache_key}")
                 self.cached_exchange_rate_dict[cache_key] = CachedExchangeRate(
                     exchange_rate=rate,
                     last_check=datetime.now()

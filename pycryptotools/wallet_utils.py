@@ -26,10 +26,13 @@
 
 import hashlib
 import hmac
+import logging
 from .main import *
 from .py2specials import *
 from .py3specials import *
 from . import constants as version
+
+_logger = logging.getLogger(__name__)
 
 # Version numbers for BIP32 extended keys
 # standard: xprv, xpub
@@ -87,7 +90,7 @@ def assert_bytes(*args):
         for x in args:
             assert isinstance(x, (bytes, bytearray))
     except:
-        print('assert bytes failed', list(map(type, args)))
+        _logger.debug('assert bytes failed: %s', list(map(type, args)))
         raise
 
 def append_PKCS7_padding(data):
