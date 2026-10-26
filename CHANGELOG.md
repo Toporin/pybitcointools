@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Fix Polygon testnet having no explorer link (https://github.com/Toporin/Satochip-Utils/issues/42):
+Blockscout does not host Polygon Amoy, so `get_coin_info()` always failed for POLTEST. The new
+`JsonRpcExplorer` reads the balance from public Amoy JSON-RPC nodes (no API key needed) and links
+to amoy.polygonscan.com. Token/NFT listing is not available on Polygon testnet.
+
 Replace `print()` with the standard `logging` module:
 * each module logs to `pycryptotools.<module>`; the package logger has a `NullHandler`, so
   nothing is output unless the application configures logging

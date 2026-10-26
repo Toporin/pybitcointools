@@ -30,7 +30,7 @@ Releases bump `version` in `setup.py` and add a `CHANGELOG.md` entry (Keep a Cha
 
 **Explorers (`pycryptotools/explorers/`):** each coin's `__init__` populates `self.explorers` (list of `BlockExplorer` subclasses) and `self.price_explorers` (list of `PriceExplorer`). `BaseCoin.get_coin_info` / `get_asset_list` / `get_address_web_url` / `get_exchange_rate_with` try each explorer in order, print failures and move on, and raise `ValueError` only if all fail. To add a data source, subclass `BlockExplorer`, implement `get_coin_info(addr)` (returns a dict: name, symbol, type=`AssetType.COIN`, balance, exchange_rate, currency, address_explorer_url) and `get_asset_list(addr)`, then register it in the coin's `__init__`. Explorers are constructed with `(coin, apikeys)`; API keys come from the coin's `apikeys` dict (e.g. `API_KEY_ETHERSCAN`).
 
-Current wiring: BTC → Blockstream, LTC → litecoinspace, BCH → Fullstack, XCP → Tokenscan (xchain), ETH/EVM forks → Blockscout, prices → Coingate. Older module-level explorers (`etherscan.py`, `bscscan.py`, `sochain.py`, `opensea.py`, `rarible.py`) follow a previous function-based API and are mostly legacy.
+Current wiring: BTC → Blockstream, LTC → litecoinspace, BCH → Fullstack, XCP → Tokenscan (xchain), ETH/EVM forks → Blockscout (POL testnet → `JsonRpcExplorer`, since Blockscout does not host Amoy), prices → Coingate. Older module-level explorers (`etherscan.py`, `bscscan.py`, `sochain.py`, `opensea.py`, `rarible.py`) follow a previous function-based API and are mostly legacy.
 
 ## Logging
 

@@ -828,5 +828,31 @@ class PolygonCase(unittest.TestCase):
         test_explorer(self.coin, self.ADDRESS_POL_EXPLORER)
 
 
+class PolygonTestCase(unittest.TestCase):
+    """  Polygon testnet (Amoy)  """
+
+    ADDRESS_POLTEST_EXPLORER = [  # testing block explorer
+        "0x0000000000000000000000000000000000000000",
+        "0x8db853Aa2f01AF401e10dd77657434536735aC62",
+    ]
+    coin = Polygon(testnet=True)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_address_web_url(self):
+        # https://github.com/Toporin/Satochip-Utils/issues/42
+        addr = self.ADDRESS_POLTEST_EXPLORER[1]
+        self.assertEqual(self.coin.get_address_web_url(addr), "https://amoy.polygonscan.com/address/" + addr)
+
+    def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_POLTEST_EXPLORER)
+        coin_info = self.coin.get_coin_info(self.ADDRESS_POLTEST_EXPLORER[0])
+        self.assertEqual(coin_info['address_explorer_url'],
+                         "https://amoy.polygonscan.com/address/" + self.ADDRESS_POLTEST_EXPLORER[0])
+        self.assertGreater(coin_info['balance'], 0)
+
+
 if __name__ == '__main__':
     unittest.main()

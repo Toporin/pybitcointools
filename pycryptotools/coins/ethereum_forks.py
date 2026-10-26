@@ -1,4 +1,5 @@
 from pycryptotools.explorers import bscscan
+from pycryptotools.explorers.jsonrpc_explorer import JsonRpcExplorer
 from pycryptotools.coins.ethereum import Ethereum
 
 
@@ -22,6 +23,12 @@ class Polygon(Ethereum):
         'coin_symbol': "POLTEST",
         'magicbyte': 111,
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        if self.is_testnet:
+            # Blockscout does not host Polygon Amoy
+            self.explorers = [JsonRpcExplorer(self, self.apikeys)]
 
 
 class BinanceSmartChain(Ethereum):
