@@ -16,15 +16,5 @@ def set_log_level(level):
     logging.getLogger(__name__).setLevel(level)
 
 
-from .blocks import *
-from .composite import *
-from .deterministic import *
 from .main import *
-from .mnemonic import *
-from .py2specials import *
 from .py3specials import *
-from .stealth import *
-from .transaction import *
-#from .coins import *
-from .keystore import *
-from .wallet import *

@@ -1,11 +1,9 @@
-import sys, os
+import sys
 import binascii
 import hashlib
 
 
 if sys.version_info.major == 3:
-    string_types = (str)
-    string_or_bytes_types = (str, bytes)
     int_types = (int, float)
     # Base switching
     code_strings = {
@@ -62,9 +60,6 @@ if sys.version_info.major == 3:
     def safe_from_hex(s):
         return bytes.fromhex(s)
 
-    def from_int_representation_to_bytes(a):
-        return bytes(str(a), 'utf-8')
-
     def from_int_to_byte(a):
         return bytes([a])
 
@@ -118,6 +113,3 @@ if sys.version_info.major == 3:
             result += extract(string[0], code_string)
             string = string[1:]
         return result
-
-    def random_string(x):
-        return str(os.urandom(x))

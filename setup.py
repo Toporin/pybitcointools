@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='pycryptotools',
-    version='0.3.3',
+    version='0.4.0',
     description='Python Crypto Coin Tools',
     long_description=open('README.md').read(),
     long_description_content_type= 'text/markdown',
@@ -26,10 +26,6 @@ setuptools.setup(
     package_dir={
         'pycryptotools': 'pycryptotools'
     },
-    package_data={
-        'pycryptotools': ['*.txt'],
-    },
-    scripts=['cryptotool'],
     include_package_data=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

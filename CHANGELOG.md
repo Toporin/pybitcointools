@@ -6,22 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.3.3 - Unreleased]
+## [0.4.0 - Unreleased]
 
+The library now focuses on coins and block explorers: address derivation, WIF encoding,
+balances, asset listings and exchange rates. Code that served other purposes has been removed.
+**This is a breaking change**: applications that need the removed APIs should pin
+`pycryptotools<0.4`.
+
+### Removed
+* modules `transaction`, `deterministic` (BIP32/Electrum keys), `mnemonic` (with the `english.txt`
+  wordlist), `keystore`, `wallet_utils`, `wallet`, `blocks`, `composite`, `stealth`, `constants`
+  and `py2specials`
+* `Bitcoin` methods `addrtoscript`, `output_script_to_address`, `pubtop2w`, `privtop2w`,
+  `mk_multsig_address`, `is_segwit` and `electrum_address`, and the `hashcode` attribute
+* `main`: ECDSA signing/verification/recovery and message signing, `random_key`,
+  `random_electrum_seed`, key arithmetic (`add_pubkeys`, `multiply`, `divide`, …), the CLI helpers
+  (`access`, `multiaccess`, `slice`, `count`, `sum`), `change_curve`, `getG` and the `pubtoaddr`
+  alias (use `pubtolegacy`); names from `ripemd` are no longer re-exported by the package
+* `keccak`: everything except `Keccak256` (Keccak-224/384/512, SHA3, SHAKE)
+* the `cryptotool` command-line script
+* the `pbkdf2` dependency
+
+### Fixed
 Bug fixes and code quality:
-* `Bitcoin.is_address()`/`is_p2sh()` crashed (missing `address_prefixes`), which also broke
-  `ecdsa_sign()`, `ecdsa_verify()` and `addrtoscript()` for base58 addresses
-* `ecdsa_verify()` by address and `get_version_byte()` failed on Python 3
-* P2WSH output scripts used a 20-byte push length for 32-byte programs (invalid script)
-* `serialize_script()` encoded the integer 16 as `0x10` instead of `OP_16`
-* `words_verify()` always returned False; `deterministic.electrum_address()` raised NameError
+* `Bitcoin.is_address()`/`is_p2sh()` crashed (missing `address_prefixes`)
 * Blockscout: tokens were overwritten by NFTs in `get_asset_list()`, and a missing exchange rate
   (e.g. on testnets) made `get_coin_info()` fail; it is now returned as None
 * Coingate/Tokenscan: invalid price data is handled, NFT descriptions are stored
 * explorer HTTP requests use a 20s timeout instead of potentially hanging forever
 * Dogecoin testnet `coin_symbol` is now `DOGETEST` (was `Dogecoin`)
-* `words_mine()` uses `secrets` instead of `random` for entropy
-* `cryptotool` script works again (stale `cryptos` imports)
 * `python_requires` raised to 3.7 (the package already required `dataclasses`)
 * remove unused imports and dead code, avoid bare `except:`
 
@@ -40,8 +53,9 @@ Replace `print()` with the standard `logging` module:
 * each module logs to `pycryptotools.<module>`; the package logger has a `NullHandler`, so
   nothing is output unless the application configures logging
 * new `pycryptotools.set_log_level(level)` sets the level of all pycryptotools loggers at once
-* security: BIP39 checksum validation (`words_verify`) no longer prints the mnemonic entropy
-  to stdout, and the Etherscan/BscScan modules no longer print request URLs containing the API key
+* security: the Etherscan/BscScan modules no longer print request URLs containing the API key.
+  In 0.3.2, BIP39 checksum validation (`mnemonic.words_verify`) printed the mnemonic entropy to
+  stdout; that module is removed in this release
 * remove leftover debug traces; explorer failures are logged as warnings, request traces as debug
 
 Note: output that used to be printed to stdout is now silent by default. Use

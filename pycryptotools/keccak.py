@@ -61,16 +61,6 @@ def rol(value, left, bits):
     return bot | top
 
 
-def ror(value, right, bits):
-    """
-    Circularly rotate 'value' to the right,
-    treating it as a quantity of the given size in bits.
-    """
-    top = value >> right
-    bot = (value & Masks[right]) << (bits - right)
-    return bot | top
-
-
 def multirate_padding(used_bytes, align_bytes):
     """
     The Keccak padding function.
@@ -83,32 +73,6 @@ def multirate_padding(used_bytes, align_bytes):
         return [0x81]
     else:
         return [0x01] + ([0x00] * (padlen - 2)) + [0x80]
-
-
-def sha_padding(used_bytes, align_bytes):
-    """
-    The SHA3 padding function
-    """
-    padlen = align_bytes - (used_bytes % align_bytes)
-    if padlen == 1:
-        return [0x86]
-    elif padlen == 2:
-        return [0x06, 0x80]
-    else:
-        return [0x06] + ([0x00] * (padlen - 2)) + [0x80]
-
-
-def shake_padding(used_bytes, align_bytes):
-    """
-    The SHAKE padding function
-    """
-    padlen = align_bytes - (used_bytes % align_bytes)
-    if padlen == 1:
-        return [0x9F]
-    elif padlen == 2:
-        return [0x1F, 0x80]
-    else:
-        return [0x1F] + ([0x00] * (padlen - 2)) + [0x80]
 
 
 def keccak_f(state):
@@ -381,105 +345,5 @@ class KeccakHash:
         return create
 
 
-class SHA3Hash:
-    """
-    The SHA3 hash function, with a hashlib-compatible interface.
-    """
-
-    def __init__(self, bitrate_bits, capacity_bits, output_bits):
-        # our in-absorption sponge. this is never given padding
-        assert bitrate_bits + capacity_bits in (25, 50, 100, 200, 400, 800, 1600)
-        self.sponge = KeccakSponge(
-            bitrate_bits, bitrate_bits + capacity_bits, sha_padding, keccak_f
-        )
-
-        # hashlib interface members
-        assert output_bits % 8 == 0
-        self.digest_size = bits2bytes(output_bits)
-        self.block_size = bits2bytes(bitrate_bits)
-
-    def __repr__(self):
-        inf = (
-            self.sponge.state.bitrate,
-            self.sponge.state.b - self.sponge.state.bitrate,
-            self.digest_size * 8,
-        )
-        return "<SHA3Hash with r=%d, c=%d, image=%d>" % inf
-
-    def copy(self):
-        return deepcopy(self)
-
-    def update(self, s):
-        self.sponge.absorb(s)
-
-    def digest(self):
-        finalised = self.sponge.copy()
-        finalised.absorb_final()
-        digest = finalised.squeeze(self.digest_size)
-        return KeccakState.ilist2bytes(digest)
-
-    def hexdigest(self):
-        return self.digest().hex()
-
-    @staticmethod
-    def preset(bitrate_bits, capacity_bits, output_bits):
-        """
-        Returns a factory function for the given bitrate, sponge capacity and output length.
-        The function accepts an optional initial input, ala hashlib.
-        """
-
-        def create(initial_input=None):
-            h = SHA3Hash(bitrate_bits, capacity_bits, output_bits)
-            if initial_input is not None:
-                h.update(initial_input)
-            return h
-
-        return create
-
-
-class SHAKE:
-    """
-    The SHAKE Hash-XOF function.
-    """
-
-    def __init__(self, bitrate_bits, capacity_bits):
-        # our in-absorption sponge. this is never given padding
-        assert bitrate_bits + capacity_bits in (25, 50, 100, 200, 400, 800, 1600)
-        self.sponge = KeccakSponge(
-            bitrate_bits, bitrate_bits + capacity_bits, shake_padding, keccak_f
-        )
-
-    @staticmethod
-    def preset(bitrate_bits, capacity_bits):
-        def create(initial_input=None):
-            h = SHAKE(bitrate_bits, capacity_bits)
-            if initial_input is not None:
-                h.update(initial_input)
-            return h
-
-        return create
-
-    def update(self, s):
-        self.sponge.absorb(s)
-
-    def squeeze(self, len):
-        finalised = self.sponge.copy()
-        finalised.absorb_final()
-        return KeccakState.ilist2bytes(finalised.squeeze(len))
-
-
 # Keccak parameter presets
-Keccak224 = KeccakHash.preset(1152, 448, 224)
 Keccak256 = KeccakHash.preset(1088, 512, 256)
-Keccak384 = KeccakHash.preset(832, 768, 384)
-Keccak512 = KeccakHash.preset(576, 1024, 512)
-
-# SHA3 parameter presets
-SHA3_224 = SHA3Hash.preset(1152, 448, 224)
-SHA3_256 = SHA3Hash.preset(1088, 512, 256)
-SHA3_384 = SHA3Hash.preset(832, 768, 384)
-SHA3_512 = SHA3Hash.preset(576, 1024, 512)
-
-# SHAKE parameter presets
-SHAKE_128 = SHAKE.preset(1344, 256)
-SHAKE_256 = SHAKE.preset(1088, 512)

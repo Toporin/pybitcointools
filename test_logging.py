@@ -1,13 +1,10 @@
 import ast
-import contextlib
-import io
 import logging
 import pathlib
 import unittest
 
 import pycryptotools
 import pycryptotools.coins  # noqa: F401 -- registers the coin/explorer loggers
-from pycryptotools.mnemonic import words_verify
 
 # to run test: python3 -m unittest test_logging
 
@@ -61,17 +58,6 @@ class TestNoLeak(unittest.TestCase):
                         and node.func.id == 'print'):
                     offenders.append(f"{path.relative_to(PKG_DIR)}:{node.lineno}")
         self.assertEqual(offenders, [], "print() calls in library:\n" + "\n".join(offenders))
-
-    def test_mnemonic_checksum_does_not_expose_entropy(self):
-        """words_verify() used to print the raw entropy of the mnemonic."""
-        words = "tonight stem cause eyebrow estate smart duck wrong toe under job danger"
-        stdout = io.StringIO()
-        with self.assertLogs('pycryptotools', level=logging.DEBUG) as logs, \
-                contextlib.redirect_stdout(stdout):
-            logging.getLogger('pycryptotools').debug("sentinel")  # assertLogs needs one record
-            words_verify(words.split())  # result irrelevant: we only check nothing leaks
-        self.assertEqual(stdout.getvalue(), "")
-        self.assertEqual(logs.output, ["DEBUG:pycryptotools:sentinel"])
 
 
 if __name__ == "__main__":

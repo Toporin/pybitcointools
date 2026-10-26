@@ -1,7 +1,6 @@
 from .bitcoin import Bitcoin
 from ..explorers.coingate_price_explorer import Coingate
 from ..explorers.fulcrum_explorer import FulcrumExplorer
-from ..transaction import SIGHASH_ALL, SIGHASH_FORKID
 
 from cashaddress import convert # cashAddr conversion for bcash
 
@@ -13,7 +12,6 @@ class BitcoinCash(Bitcoin):
     script_magicbyte = 5
     wif_prefix = 0x80
     hd_path = 145
-    hashcode = SIGHASH_ALL | SIGHASH_FORKID
     testnet_overrides = {
         'display_name': "Bitcoin Cash Testnet",
         'coin_symbol': "BCHTEST",

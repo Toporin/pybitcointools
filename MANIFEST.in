@@ -1,4 +1,3 @@
-include pycryptotools/english.txt
 include LICENSE
 include README.md
 include CHANGELOG.md
