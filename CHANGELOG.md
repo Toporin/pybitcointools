@@ -60,7 +60,7 @@ Bug fixes and code quality:
 * Coingate/Tokenscan: invalid price data is handled, NFT descriptions are stored
 * explorer HTTP requests use a 20s timeout instead of potentially hanging forever
 * Dogecoin testnet `coin_symbol` is now `DOGETEST` (was `Dogecoin`)
-* `python_requires` raised to 3.7 (the package already required `dataclasses`)
+* `python_requires` raised to 3.8 (`requests` 2.32 requires Python 3.8 or later)
 * remove unused imports and dead code, avoid bare `except:`
 
 Fix Bitcoin Cash balance and explorer link (https://github.com/Toporin/Satochip-Utils/issues/41):
