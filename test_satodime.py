@@ -1,3 +1,5 @@
+import configparser
+import os
 import unittest
 from typing import List
 import base58
@@ -11,6 +13,16 @@ from pycryptotools.coins.dash import Dash
 from pycryptotools.coins.dogecoin import Doge
 from pycryptotools.coins.ethereum import Ethereum
 from pycryptotools.coins.litecoin import Litecoin
+
+
+def load_apikeys():
+    """API keys from api_keys.ini in the repo root (same format as Satochip-Utils), if present"""
+    config = configparser.ConfigParser()
+    config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), "api_keys.ini"))
+    return dict(config['APIKEYS']) if config.has_section('APIKEYS') else {}
+
+
+APIKEYS = load_apikeys()  # e.g. API_KEY_SOCHAIN for Litecoin/Dogecoin
 
 
 # test functions specifically used by SatodimeTool
@@ -301,7 +313,7 @@ ADDRESS_LTC_EXPLORER = [
 
 
 class LitecoinCase(unittest.TestCase):
-    coin = Litecoin(testnet=False)
+    coin = Litecoin(testnet=False, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -402,7 +414,7 @@ PRIVKEY_WIF_LTCTEST = [
 
 
 class LitecoinTestCase(unittest.TestCase):
-    coin = Litecoin(testnet=True)
+    coin = Litecoin(testnet=True, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -483,7 +495,7 @@ PRIVKEY_WIF_DOGE = [
 
 
 class DogeCase(unittest.TestCase):
-    coin = Doge(testnet=False)
+    coin = Doge(testnet=False, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -525,8 +537,32 @@ class DogeCase(unittest.TestCase):
                 # print(addr_segwit)
 
             # url
+            # url
             url = self.coin.get_address_web_url(addr)
-            print(f"URL= {url}")
+            self.assertEqual(url, "https://sochain.com/doge/address/" + addr)
+
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_DOGE[:2])
+        coin_info = self.coin.get_coin_info("DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L")  # funded address
+        self.assertGreater(coin_info['balance'], 0)
+        self.assertEqual(coin_info['address_explorer_url'],
+                         "https://sochain.com/doge/address/DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L")
+
+
+class DogeTestCase(unittest.TestCase):
+    """ Dogecoin testnet """
+    coin = Doge(testnet=True, apikeys=APIKEYS)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        addrs = [self.coin.pubtoaddr(bytes.fromhex(pubkey)) for pubkey in PUBKEY_DOGE[:2]]
+        test_explorer(self.coin, addrs)
+        coin_info = self.coin.get_coin_info(addrs[0])
+        self.assertIn('balance', coin_info)
+        self.assertEqual(coin_info['address_explorer_url'], "https://sochain.com/dogetest/address/" + addrs[0])
 
 
 """ DASH """
@@ -599,8 +635,9 @@ class DashCase(unittest.TestCase):
                 # print(addr_segwit)
 
             # url
-            url = self.coin.get_address_web_url(addr)
-            print(f"URL= {url}")
+            # no supported explorer for this coin
+            with self.assertRaises(ValueError):
+                self.coin.get_address_web_url(addr)
 
 
 """ Bitcoin Cash """
@@ -692,6 +729,31 @@ class BitcoinCashCase(unittest.TestCase):
 
     def test_explorer(self):
         test_explorer(self.coin, ADDRESS_BCH_EXPLORER)
+        addr = "bitcoincash:" + ADDRESS_BCH_EXPLORER[2]
+        coin_info = self.coin.get_coin_info(addr)
+        self.assertEqual(coin_info['address_explorer_url'], "https://blockchair.com/bitcoin-cash/address/" + addr)
+        self.assertGreater(coin_info['balance'], 0)
+
+
+ADDRESS_BCHTEST_EXPLORER = [
+    "bchtest:qps822p04zpg676v6krnwhjhtqx44klcvqjrg353rc",
+]
+
+
+class BitcoinCashTestCase(unittest.TestCase):
+    """ Bitcoin Cash testnet (chipnet) """
+    coin = BitcoinCash(testnet=True)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        # https://github.com/Toporin/Satochip-Utils/issues/41
+        test_explorer(self.coin, ADDRESS_BCHTEST_EXPLORER)
+        coin_info = self.coin.get_coin_info(ADDRESS_BCHTEST_EXPLORER[0])
+        self.assertIsNone(coin_info['address_explorer_url'])  # no explorer for chipnet
+        self.assertIn('balance', coin_info)
 
 
 class EthereumCase(unittest.TestCase):
@@ -826,6 +888,32 @@ class PolygonCase(unittest.TestCase):
 
     def test_explorer(self):
         test_explorer(self.coin, self.ADDRESS_POL_EXPLORER)
+
+
+class PolygonTestCase(unittest.TestCase):
+    """  Polygon testnet (Amoy)  """
+
+    ADDRESS_POLTEST_EXPLORER = [  # testing block explorer
+        "0x0000000000000000000000000000000000000000",
+        "0x8db853Aa2f01AF401e10dd77657434536735aC62",
+    ]
+    coin = Polygon(testnet=True)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_address_web_url(self):
+        # https://github.com/Toporin/Satochip-Utils/issues/42
+        addr = self.ADDRESS_POLTEST_EXPLORER[1]
+        self.assertEqual(self.coin.get_address_web_url(addr), "https://amoy.polygonscan.com/address/" + addr)
+
+    def test_explorer(self):
+        test_explorer(self.coin, self.ADDRESS_POLTEST_EXPLORER)
+        coin_info = self.coin.get_coin_info(self.ADDRESS_POLTEST_EXPLORER[0])
+        self.assertEqual(coin_info['address_explorer_url'],
+                         "https://amoy.polygonscan.com/address/" + self.ADDRESS_POLTEST_EXPLORER[0])
+        self.assertGreater(coin_info['balance'], 0)
 
 
 if __name__ == '__main__':

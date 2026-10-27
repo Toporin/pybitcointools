@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import Dict
 
 from pycryptotools.coins.base_coin import BaseCoin

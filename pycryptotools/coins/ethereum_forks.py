@@ -1,4 +1,6 @@
-from pycryptotools.explorers import bscscan
+from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
+from pycryptotools.explorers.coingate_price_explorer import Coingate
+from pycryptotools.explorers.jsonrpc_explorer import JsonRpcExplorer
 from pycryptotools.coins.ethereum import Ethereum
 
 
@@ -23,11 +25,21 @@ class Polygon(Ethereum):
         'magicbyte': 111,
     }
 
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        if self.is_testnet:
+            # Blockscout does not host Polygon Amoy
+            self.explorers = [JsonRpcExplorer(self, self.apikeys)]
+        else:
+            # polygon.blockscout.com may block API clients (Cloudflare challenge):
+            # fall back to a public JSON-RPC node for the balance
+            self.explorers = [BlockscoutExplorer(self, self.apikeys), JsonRpcExplorer(self, self.apikeys)]
+            self.price_explorers = [Coingate(self, self.apikeys)]
+
 
 class BinanceSmartChain(Ethereum):
     coin_symbol = "BSC"
     display_name = "Binance Smart Chain"
-    explorer = bscscan
 
     testnet_overrides = {
         'display_name': "BSC Testnet",

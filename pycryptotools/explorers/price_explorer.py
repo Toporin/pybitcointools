@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from decimal import Decimal
 from typing import Dict, Optional
 

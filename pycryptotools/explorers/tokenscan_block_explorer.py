@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Tuple, Union, Any
+import logging
+from typing import Dict
 from decimal import Decimal
 import requests
 
@@ -6,6 +7,8 @@ from pycryptotools.coins.base_coin import BaseCoin
 from pycryptotools.coins.asset_type import AssetType
 from pycryptotools.explorers.block_explorer import BlockExplorer
 from pycryptotools.explorers.explorer_exceptions import DataFetcherError
+
+_logger = logging.getLogger(__name__)
 
 
 class TokenscanExplorer(BlockExplorer):
@@ -33,12 +36,12 @@ class TokenscanExplorer(BlockExplorer):
 
         def get_coin_info(self, addr):
             """Get native coin info for an address"""
-            print(f"In TokenscanExplorer get_coin_info for: {addr}")
+            _logger.debug("TokenscanExplorer get_coin_info for: %s", addr)
 
             url = f"{self.get_url()}api/address/{addr}"
-            print(f"urlString: {url}")
+            _logger.debug("GET %s", url)
 
-            response = requests.get(url)
+            response = requests.get(url, timeout=20)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -51,41 +54,33 @@ class TokenscanExplorer(BlockExplorer):
                 coin_info['exchange_rate'] = Decimal(rates.get('usd'))/Decimal(rates.get('xcp'))
                 coin_info['currency'] = "USD"
             except Exception as ex:
-                print(f"Exception in tokenscanExplorer get exchange rate: {ex}")
-            print(f"DEBUG TokenscanExplorer type(rates): {type(rates)}")
-            print(f"DEBUG TokenscanExplorer rates: {rates}")
-            print(f"DEBUG TokenscanExplorer type(coin_info['exchange_rate)']: {type(coin_info.get('exchange_rate'))}")
-            print(f"DEBUG TokenscanExplorer coin_info['exchange_rate']: {coin_info.get('exchange_rate')}")
-            print(f"DEBUG TokenscanExplorer type(coin_info['currency']): {type(coin_info.get('currency'))}")
-            print(f"DEBUG TokenscanExplorer coin_info['currency']: {coin_info.get('currency')}")
-            print(f"DEBUG TokenscanExplorer coin_info: {coin_info}")
+                _logger.warning("Failed to get exchange rate from TokenscanExplorer: %s", ex)
 
             # add more info
             coin_info['symbol'] = self.coin_symbol
             coin_info['name'] = self.coin.display_name
             coin_info['type'] = AssetType.COIN
             coin_info['address_explorer_url'] = self.get_address_web_url(addr)
-            print(f"coin_info: {coin_info}")
+            _logger.debug("coin_info: %s", coin_info)
             return coin_info
 
         def get_asset_list(self, addr):
             """Get simple asset list for an address"""
-            print(f"in TokenscanExplorer get_asset_list - addr: {addr}")
+            _logger.debug("TokenscanExplorer get_asset_list for: %s", addr)
 
             url = f"{self.get_url()}api/balances/{addr}"
-            print(f"urlString: {url}")
+            _logger.debug("GET %s", url)
 
-            response = requests.get(url)
+            response = requests.get(url, timeout=20)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
             asset_list = []
             data = response.json()
             items = data.get('data', [])
-            print(f"asset_list size: {len(items)}")
+            _logger.debug("asset_list size: %s", len(items))
             for item in items:
                 try:
-                    print(f"DEBUG asset: {item}")
                     asset = {}
                     asset['name'] = item.get('asset', "")
                     asset['symbol'] = item.get('symbol', "")
@@ -97,7 +92,7 @@ class TokenscanExplorer(BlockExplorer):
                         asset['exchange_rate'] = Decimal(rates.get('usd'))
                         asset['currency'] = "USD"
                     except Exception as ex:
-                        print(f"Exception in tokenscanExplorer get exchange rate: {ex}")
+                        _logger.debug("No exchange rate for asset %s: %s", item.get('asset'), ex)
 
                     # get nft info if any from description
                     description = item.get("description", "")
@@ -126,18 +121,17 @@ class TokenscanExplorer(BlockExplorer):
 
                                 elif description.endswith(".json"):
                                     json_link = description
-                                    print(f"DEBUG tokenscan.io json_link: {json_link}")
-                                    response2 = requests.get(json_link)
-                                    print(f"DEBUG tokenscan.io json_link response: {response2}")
+                                    _logger.debug("GET %s", json_link)
+                                    response2 = requests.get(json_link, timeout=20)
                                     res2 = response2.json()
                                     asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
                                     #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))
 
                                 else:
-                                    asset["nft_description"] += description
+                                    asset["nft_description"] = description
 
                         except Exception as ex:
-                            print(f"EXCEPTION tokenscan.io get_nft_info json_link exception: {ex}")
+                            _logger.warning("Failed to get NFT info from asset description: %s", ex)
 
                     if asset.get('nft_image_url',""):
                         asset["type"] = AssetType.NFT
@@ -151,7 +145,7 @@ class TokenscanExplorer(BlockExplorer):
                     # add to list
                     asset_list += [asset]
                 except Exception as ex:
-                    print(f"Exception in TokenscanExplorer get_asset_list - failed to parse 1 asset: {str(ex)}")
+                    _logger.warning("Failed to parse asset in TokenscanExplorer: %s", ex)
 
             return asset_list
 

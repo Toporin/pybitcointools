@@ -1,6 +1,6 @@
 from .bitcoin import Bitcoin
 from ..explorers.coingate_price_explorer import Coingate
-from ..explorers.litecoinspace_explorer import LitecoinspaceExplorer
+from ..explorers.sochain import SochainExplorer
 
 
 class Litecoin(Bitcoin):
@@ -28,5 +28,6 @@ class Litecoin(Bitcoin):
 
     def __init__(self, testnet=False, **kwargs):
         super().__init__(testnet, **kwargs)
-        self.explorers = [LitecoinspaceExplorer(self, self.apikeys)]
+        # LitecoinspaceExplorer is not used as fallback: litecoinspace.org is unreachable
+        self.explorers = [SochainExplorer(self, self.apikeys)]
         self.price_explorers = [Coingate(self, self.apikeys)]

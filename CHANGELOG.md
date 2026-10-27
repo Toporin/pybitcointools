@@ -6,6 +6,87 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.4.0] - 2026-10-27
+
+The library now focuses on coins and block explorers: address derivation, WIF encoding,
+balances, asset listings and exchange rates. Code that served other purposes has been removed.
+**This is a breaking change**: applications that need the removed APIs should pin
+`pycryptotools<0.4`.
+
+### Removed
+* modules `transaction`, `deterministic` (BIP32/Electrum keys), `mnemonic` (with the `english.txt`
+  wordlist), `keystore`, `wallet_utils`, `wallet`, `blocks`, `composite`, `stealth`, `constants`
+  and `py2specials`
+* `Bitcoin` methods `addrtoscript`, `output_script_to_address`, `pubtop2w`, `privtop2w`,
+  `mk_multsig_address`, `is_segwit` and `electrum_address`, and the `hashcode` attribute
+* `main`: ECDSA signing/verification/recovery and message signing, `random_key`,
+  `random_electrum_seed`, key arithmetic (`add_pubkeys`, `multiply`, `divide`, …), the CLI helpers
+  (`access`, `multiaccess`, `slice`, `count`, `sum`), `change_curve`, `getG` and the `pubtoaddr`
+  alias (use `pubtolegacy`); names from `ripemd` are no longer re-exported by the package
+* `keccak`: everything except `Keccak256` (Keccak-224/384/512, SHA3, SHAKE)
+* explorer modules `etherscan`, `bscscan`, `opensea`, `rarible` (function-based code for retired
+  APIs and testnets), `fullstack_explorer` (Fullstack.cash no longer serves data; replaced by
+  `FulcrumExplorer`) and `nft_explorer` (unused abstract class), and the unused
+  `BinanceSmartChain.explorer` attribute
+* the `cryptotool` command-line script
+* the `pbkdf2` dependency
+
+### Added
+* `SochainExplorer` (SoChain API v3, https://sochain.com/docs/balance) for Litecoin, Dogecoin and
+  their testnets; native balances only (no tokens or NFTs). The API key is read from
+  `apikeys['API_KEY_SOCHAIN']` and sent only in the `API-KEY` header. It replaces the old
+  function-based `sochain` module, which targeted the retired chain.so v2 API
+* Litecoin and Dogecoin (mainnet and testnet) now use `SochainExplorer`. Dogecoin and Litecoin
+  testnet have a working explorer again. `LitecoinspaceExplorer` is no longer used by Litecoin
+  (litecoinspace.org is unreachable) but remains available in the library
+
+### Fixed
+Explorer correctness:
+* BSC, RSK, xDai and POA silently reported a zero balance: Blockscout queried a placeholder url
+  whose 404 was read as "address not found". Unsupported chains now raise an error
+* Dash and Doge queried Bitcoin testnet through `BlockstreamExplorer`; they now raise an error
+  (no supported explorer yet)
+* `LitecoinspaceExplorer` rejects Litecoin testnet (litecoinspace.org has no working testnet API)
+  and returns a `None` address link for it
+* Polygon mainnet: polygon.blockscout.com blocks API clients with a Cloudflare challenge. The
+  balance now falls back to a public JSON-RPC node (`JsonRpcExplorer`, link to polygonscan.com)
+  with the exchange rate from Coingate. Tokens and NFTs are unavailable while Blockscout is
+  blocked, and `get_asset_list()` then raises instead of returning an empty list
+
+Bug fixes and code quality:
+* `Bitcoin.is_address()`/`is_p2sh()` crashed (missing `address_prefixes`)
+* Blockscout: tokens were overwritten by NFTs in `get_asset_list()`, and a missing exchange rate
+  (e.g. on testnets) made `get_coin_info()` fail; it is now returned as None
+* Coingate/Tokenscan: invalid price data is handled, NFT descriptions are stored
+* explorer HTTP requests use a 20s timeout instead of potentially hanging forever
+* Dogecoin testnet `coin_symbol` is now `DOGETEST` (was `Dogecoin`)
+* `python_requires` raised to 3.8 (`requests` 2.32 requires Python 3.8 or later)
+* remove unused imports and dead code, avoid bare `except:`
+
+Fix Bitcoin Cash balance and explorer link (https://github.com/Toporin/Satochip-Utils/issues/41):
+the Fullstack.cash API no longer serves data, so `get_coin_info()` failed for BCH and BCH testnet.
+The new `FulcrumExplorer` fetches balances from public Electrum protocol (Fulcrum) servers over TLS
+with `blockchain.address.get_balance`. Mainnet addresses link to blockchair.com; testnet (chipnet)
+has no supported explorer link.
+
+Fix Polygon testnet having no explorer link (https://github.com/Toporin/Satochip-Utils/issues/42):
+Blockscout does not host Polygon Amoy, so `get_coin_info()` always failed for POLTEST. The new
+`JsonRpcExplorer` reads the balance from public Amoy JSON-RPC nodes (no API key needed) and links
+to amoy.polygonscan.com. Token/NFT listing is not available on Polygon testnet.
+
+Replace `print()` with the standard `logging` module:
+* each module logs to `pycryptotools.<module>`; the package logger has a `NullHandler`, so
+  nothing is output unless the application configures logging
+* new `pycryptotools.set_log_level(level)` sets the level of all pycryptotools loggers at once
+* security: in 0.3.2, BIP39 checksum validation (`mnemonic.words_verify`) printed the mnemonic
+  entropy to stdout, and the Etherscan/BscScan modules printed request URLs containing the API key;
+  these modules are removed in this release
+* remove leftover debug traces; explorer failures are logged as warnings, request traces as debug
+
+Note: output that used to be printed to stdout is now silent by default. Use
+`logging.basicConfig(level=logging.DEBUG)` (or `set_log_level()` with a configured handler) to
+see it.
+
 ## [0.3.2]: 
 
 Improve Blockscout explorer:
