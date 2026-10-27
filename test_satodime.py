@@ -1,3 +1,5 @@
+import configparser
+import os
 import unittest
 from typing import List
 import base58
@@ -11,6 +13,16 @@ from pycryptotools.coins.dash import Dash
 from pycryptotools.coins.dogecoin import Doge
 from pycryptotools.coins.ethereum import Ethereum
 from pycryptotools.coins.litecoin import Litecoin
+
+
+def load_apikeys():
+    """API keys from api_keys.ini in the repo root (same format as Satochip-Utils), if present"""
+    config = configparser.ConfigParser()
+    config.read(os.path.join(os.path.dirname(os.path.abspath(__file__)), "api_keys.ini"))
+    return dict(config['APIKEYS']) if config.has_section('APIKEYS') else {}
+
+
+APIKEYS = load_apikeys()  # e.g. API_KEY_SOCHAIN for Litecoin/Dogecoin
 
 
 # test functions specifically used by SatodimeTool
@@ -301,7 +313,7 @@ ADDRESS_LTC_EXPLORER = [
 
 
 class LitecoinCase(unittest.TestCase):
-    coin = Litecoin(testnet=False)
+    coin = Litecoin(testnet=False, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -402,7 +414,7 @@ PRIVKEY_WIF_LTCTEST = [
 
 
 class LitecoinTestCase(unittest.TestCase):
-    coin = Litecoin(testnet=True)
+    coin = Litecoin(testnet=True, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -483,7 +495,7 @@ PRIVKEY_WIF_DOGE = [
 
 
 class DogeCase(unittest.TestCase):
-    coin = Doge(testnet=False)
+    coin = Doge(testnet=False, apikeys=APIKEYS)
 
     @classmethod
     def setUpClass(cls):
@@ -525,9 +537,32 @@ class DogeCase(unittest.TestCase):
                 # print(addr_segwit)
 
             # url
-            # no supported explorer for this coin
-            with self.assertRaises(ValueError):
-                self.coin.get_address_web_url(addr)
+            # url
+            url = self.coin.get_address_web_url(addr)
+            self.assertEqual(url, "https://sochain.com/doge/address/" + addr)
+
+    def test_explorer(self):
+        test_explorer(self.coin, ADDRESS_DOGE[:2])
+        coin_info = self.coin.get_coin_info("DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L")  # funded address
+        self.assertGreater(coin_info['balance'], 0)
+        self.assertEqual(coin_info['address_explorer_url'],
+                         "https://sochain.com/doge/address/DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L")
+
+
+class DogeTestCase(unittest.TestCase):
+    """ Dogecoin testnet """
+    coin = Doge(testnet=True, apikeys=APIKEYS)
+
+    @classmethod
+    def setUpClass(cls):
+        print(f'Starting {cls.coin.display_name} test')
+
+    def test_explorer(self):
+        addrs = [self.coin.pubtoaddr(bytes.fromhex(pubkey)) for pubkey in PUBKEY_DOGE[:2]]
+        test_explorer(self.coin, addrs)
+        coin_info = self.coin.get_coin_info(addrs[0])
+        self.assertIn('balance', coin_info)
+        self.assertEqual(coin_info['address_explorer_url'], "https://sochain.com/dogetest/address/" + addrs[0])
 
 
 """ DASH """

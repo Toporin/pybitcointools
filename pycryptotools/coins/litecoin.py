@@ -1,6 +1,7 @@
 from .bitcoin import Bitcoin
 from ..explorers.coingate_price_explorer import Coingate
 from ..explorers.litecoinspace_explorer import LitecoinspaceExplorer
+from ..explorers.sochain import SochainExplorer
 
 
 class Litecoin(Bitcoin):
@@ -28,5 +29,8 @@ class Litecoin(Bitcoin):
 
     def __init__(self, testnet=False, **kwargs):
         super().__init__(testnet, **kwargs)
-        self.explorers = [LitecoinspaceExplorer(self, self.apikeys)]
+        self.explorers = [SochainExplorer(self, self.apikeys)]
+        if not self.is_testnet:
+            # litecoinspace.org has no working testnet API
+            self.explorers.append(LitecoinspaceExplorer(self, self.apikeys))
         self.price_explorers = [Coingate(self, self.apikeys)]

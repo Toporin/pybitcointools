@@ -11,13 +11,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pip install -r requirements.txt        # deps: requests, pbkdf2, base58, cashaddress
 python3 -m unittest test               # core crypto tests (ECC, bases, electrum, tx serialize/sign)
-python3 -m unittest test_satodime      # per-coin address/WIF tests + live explorer tests
+python3 -m unittest test_satodime      # per-coin address/WIF tests + live explorer tests (SoChain key read from api_keys.ini)
 python3 -m unittest test_logging        # logging conventions + no-secret-leak checks
 python3 -m unittest test_satodime.BitcoinCase.test_address   # single test
 python3 setup.py sdist bdist_wheel     # build (output in dist/)
 ```
 
 The `test_explorer` tests in `test_satodime.py` make real HTTP calls to third-party explorers, so they need network access and can fail because of the remote service rather than the code. No lint configuration exists.
+
+API keys for live tests come from a git-ignored `api_keys.ini` in the repo root, in the same format Satochip-Utils uses: an `[APIKEYS]` section with keys such as `API_KEY_SOCHAIN`. Never commit it, and never put keys in URLs or logs: `SochainExplorer` sends its key only in the `API-KEY` header.
 
 Releases bump `version` in `setup.py` and add a `CHANGELOG.md` entry (Keep a Changelog format).
 
@@ -31,7 +33,7 @@ Releases bump `version` in `setup.py` and add a `CHANGELOG.md` entry (Keep a Cha
 
 **Explorers (`pycryptotools/explorers/`):** each coin's `__init__` populates `self.explorers` (list of `BlockExplorer` subclasses) and `self.price_explorers` (list of `PriceExplorer`). `BaseCoin.get_coin_info` / `get_asset_list` / `get_address_web_url` / `get_exchange_rate_with` try each explorer in order, log a warning for each failure and move on, and raise `ValueError` only if all fail. To add a data source, subclass `BlockExplorer`, implement `get_coin_info(addr)` (returns a dict: name, symbol, type=`AssetType.COIN`, balance, exchange_rate, currency, address_explorer_url) and `get_asset_list(addr)`, then register it in the coin's `__init__`. Explorers are constructed with `(coin, apikeys)`; API keys come from the coin's `apikeys` dict (e.g. `API_KEY_ETHERSCAN`).
 
-Current wiring: BTC → Blockstream, LTC → litecoinspace, BCH → Fulcrum (Electrum protocol over TLS, raw sockets rather than `requests`), XCP → Tokenscan (xchain), ETH/ETC → Blockscout, POL → Blockscout with a `JsonRpcExplorer` fallback (polygon.blockscout.com blocks API clients behind Cloudflare; never work around it with spoofed headers), POL testnet → `JsonRpcExplorer` (Blockscout does not host Amoy), prices → Coingate. Dash, Doge, BSC, RSK, xDai, POA and LTC testnet have no supported explorer: explorers raise `DataFetcherError` for unknown symbols rather than returning placeholder URLs, because a placeholder's 404 used to read as a zero balance. Older module-level explorers (`etherscan.py`, `bscscan.py`, `sochain.py`, `opensea.py`, `rarible.py`) follow a previous function-based API and are mostly legacy.
+Current wiring: BTC → Blockstream, LTC → SoChain with litecoinspace as mainnet fallback, DOGE → SoChain, BCH → Fulcrum (Electrum protocol over TLS, raw sockets rather than `requests`), XCP → Tokenscan (xchain), ETH/ETC → Blockscout, POL → Blockscout with a `JsonRpcExplorer` fallback (polygon.blockscout.com blocks API clients behind Cloudflare; never work around it with spoofed headers), POL testnet → `JsonRpcExplorer` (Blockscout does not host Amoy), prices → Coingate. Dash, BSC, RSK, xDai and POA have no supported explorer: explorers raise `DataFetcherError` for unknown symbols rather than returning placeholder URLs, because a placeholder's 404 used to read as a zero balance. Older module-level explorers (`etherscan.py`, `bscscan.py`, `opensea.py`, `rarible.py`) follow a previous function-based API and are mostly legacy.
 
 ## Logging
 

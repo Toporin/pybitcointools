@@ -27,6 +27,14 @@ balances, asset listings and exchange rates. Code that served other purposes has
 * the `cryptotool` command-line script
 * the `pbkdf2` dependency
 
+### Added
+* `SochainExplorer` (SoChain API v3, https://sochain.com/docs/balance) for Litecoin, Dogecoin and
+  their testnets; native balances only (no tokens or NFTs). The API key is read from
+  `apikeys['API_KEY_SOCHAIN']` and sent only in the `API-KEY` header. It replaces the old
+  function-based `sochain` module, which targeted the retired chain.so v2 API
+* Litecoin and Dogecoin (mainnet and testnet) now use `SochainExplorer`; Litecoin mainnet keeps
+  `LitecoinspaceExplorer` as fallback. Dogecoin and Litecoin testnet have a working explorer again
+
 ### Fixed
 Explorer correctness:
 * BSC, RSK, xDai and POA silently reported a zero balance: Blockscout queried a placeholder url

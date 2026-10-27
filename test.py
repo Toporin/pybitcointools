@@ -169,23 +169,73 @@ class TestRegressions(unittest.TestCase):
                     coin.get_coin_info(addr_evm)
                 with self.assertRaises(ValueError):
                     coin.get_address_web_url(addr_evm)
-            # Blockstream used to query Bitcoin testnet for Dash/Doge
-            for coin in (Dash(), Doge()):
+            # Blockstream used to query Bitcoin testnet for Dash
+            for coin in (Dash(),):
                 with self.assertRaises(ValueError):
                     coin.get_coin_info("XpESxaUmonkq8RaLLp46Brx2K39ggQe226")
             get.assert_not_called()
 
-    def test_litecoin_testnet_unsupported(self):
+    def test_sochain_explorer(self):
+        import logging
+        from decimal import Decimal
         from unittest import mock
-        coin = Litecoin(testnet=True)
-        addr = "tltc1qw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
-        self.assertIsNone(coin.get_address_web_url(addr))
-        with mock.patch('requests.get') as get:
+        apikey = "secret-test-key-0123456789"
+        apikeys = {"api_key_sochain": apikey}  # configparser sections lowercase their keys
+        calls = []
+
+        def fake_get(url, headers=None, timeout=None):
+            calls.append((url, headers))
+            if 'coingate' in url:
+                return mock.Mock(status_code=200, text="0.1")
+            if url.endswith('/unknown'):
+                return mock.Mock(status_code=404)  # SoChain: "Invalid address"
+            response = mock.Mock(status_code=200)
+            response.json.return_value = {"status": "success", "data": {"confirmed": "12.34567890", "unconfirmed": "0.00000000"}}
+            return response
+
+        cases = ((Litecoin, False, "LTC"), (Litecoin, True, "LTCTEST"), (Doge, False, "DOGE"), (Doge, True, "DOGETEST"))
+        with mock.patch('requests.get', side_effect=fake_get), \
+                self.assertLogs('pycryptotools', level=logging.DEBUG) as logs:
+            for cls, testnet, network in cases:
+                coin = cls(testnet, apikeys=apikeys)
+                calls.clear()
+                coin_info = coin.get_coin_info("addr1")
+                url, headers = calls[0]
+                self.assertEqual(url, f"https://sochain.com/api/v3/balance/{network}/addr1")
+                self.assertEqual(headers, {"API-KEY": apikey})  # key in the header only
+                self.assertEqual(coin_info['balance'], Decimal("12.34567890"))
+                self.assertEqual(coin_info['address_explorer_url'], f"https://sochain.com/{network.lower()}/address/addr1")
+                self.assertEqual(coin.get_asset_list("addr1"), [])
+            # an invalid address is an error, not a zero balance
             with self.assertRaises(ValueError):
-                coin.get_coin_info(addr)
-            get.assert_not_called()
-        self.assertEqual(Litecoin().get_address_web_url("MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS"),
-                         "https://litecoinspace.org/address/MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
+                Doge(apikeys=apikeys).get_coin_info("unknown")
+        self.assertFalse(any(apikey in line for line in logs.output), "API key leaked in logs")
+        # no key configured: request sent without the header
+        with mock.patch('requests.get', side_effect=fake_get):
+            calls.clear()
+            Doge().get_coin_info("addr1")
+            self.assertEqual(calls[0][1], {})
+
+    def test_litecoin_falls_back_to_litecoinspace(self):
+        from unittest import mock
+        from pycryptotools.explorers.litecoinspace_explorer import LitecoinspaceExplorer
+
+        def fake_get(url, headers=None, timeout=None):
+            if 'sochain' in url:
+                return mock.Mock(status_code=503)
+            if 'coingate' in url:
+                return mock.Mock(status_code=200, text="50")
+            response = mock.Mock(status_code=200)
+            response.json.return_value = {'chain_stats': {'funded_txo_sum': 300000000, 'spent_txo_sum': 100000000}}
+            return response
+
+        with mock.patch('requests.get', side_effect=fake_get):
+            coin_info = Litecoin().get_coin_info("MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
+        self.assertEqual(coin_info['balance'], 2)
+        self.assertEqual(coin_info['address_explorer_url'], "https://litecoinspace.org/address/MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
+        # litecoinspace.org has no working testnet API, so it is only a mainnet fallback
+        self.assertEqual([type(e).__name__ for e in Litecoin(testnet=True).explorers], ["SochainExplorer"])
+        self.assertIsNone(LitecoinspaceExplorer(Litecoin(testnet=True), {}).get_address_web_url("tltc1q"))
 
     def test_polygon_falls_back_to_jsonrpc(self):
         from decimal import Decimal

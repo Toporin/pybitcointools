@@ -1,4 +1,5 @@
 from .bitcoin import Bitcoin
+from ..explorers.sochain import SochainExplorer
 
 class Doge(Bitcoin):
     coin_symbol = "DOGE"
@@ -20,3 +21,7 @@ class Doge(Bitcoin):
         'xpriv_prefix': 0x04358394,
         'xpub_prefix': 0x043587cf
     }
+
+    def __init__(self, testnet=False, **kwargs):
+        super().__init__(testnet, **kwargs)
+        self.explorers = [SochainExplorer(self, self.apikeys)]
