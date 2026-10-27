@@ -1,3 +1,4 @@
+api_keys.ini
 *.pyc
 *.swp
 cryptos.egg-info/*
