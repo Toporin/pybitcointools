@@ -54,7 +54,7 @@ class JsonRpcExplorer(BlockExplorer):
         for url in self.rpc_urls:
             _logger.debug("POST %s method=%s", url, method)
             try:
-                response = requests.post(url, json=payload, timeout=20)
+                response = requests.post(url, json=payload, timeout=self.HTTP_TIMEOUT)
                 if response.status_code != 200:
                     _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
                     continue

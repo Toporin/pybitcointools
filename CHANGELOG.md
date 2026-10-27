@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Fixed
+* Block explorer and exchange rate requests could stall for 20 s per IPv6 address of the server
+  on networks where IPv6 is advertised by DNS but not routed (e.g. 40 s for Coingate, 60 s for
+  SoChain), as each address was tried with the full 20 s timeout before falling back to IPv4.
+  HTTP requests now use a 4 s connect timeout (20 s read timeout, unchanged), exposed as
+  `BaseExplorer.HTTP_TIMEOUT`; Electrum (Fulcrum) connections likewise use a 4 s connect timeout
+  (`FulcrumExplorer.CONNECT_TIMEOUT`) instead of 10 s.
+
 ## [0.4.0] - 2026-10-27
 
 The library now focuses on coins and block explorers: address derivation, WIF encoding,

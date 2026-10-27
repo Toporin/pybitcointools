@@ -41,7 +41,7 @@ class TokenscanExplorer(BlockExplorer):
             url = f"{self.get_url()}api/address/{addr}"
             _logger.debug("GET %s", url)
 
-            response = requests.get(url, timeout=20)
+            response = requests.get(url, timeout=self.HTTP_TIMEOUT)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -71,7 +71,7 @@ class TokenscanExplorer(BlockExplorer):
             url = f"{self.get_url()}api/balances/{addr}"
             _logger.debug("GET %s", url)
 
-            response = requests.get(url, timeout=20)
+            response = requests.get(url, timeout=self.HTTP_TIMEOUT)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
@@ -122,7 +122,7 @@ class TokenscanExplorer(BlockExplorer):
                                 elif description.endswith(".json"):
                                     json_link = description
                                     _logger.debug("GET %s", json_link)
-                                    response2 = requests.get(json_link, timeout=20)
+                                    response2 = requests.get(json_link, timeout=self.HTTP_TIMEOUT)
                                     res2 = response2.json()
                                     asset["nft_image_url"] = res2.get("image_large", res2.get("image", ""))
                                     #asset["nft_image_large_url"] = res2.get("image_large", res2.get("image", ""))

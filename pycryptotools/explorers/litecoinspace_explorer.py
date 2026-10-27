@@ -47,7 +47,7 @@ class LitecoinspaceExplorer(BlockExplorer):
         url = f"{self.get_api_url()}address/{addr}"
         _logger.debug("GET %s", url)
 
-        response = requests.get(url, timeout=20)
+        response = requests.get(url, timeout=self.HTTP_TIMEOUT)
         if response.status_code != 200:
             _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)
             raise DataFetcherError(DataFetcherError.INVALID_URL)

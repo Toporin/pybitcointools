@@ -68,7 +68,7 @@ class SochainExplorer(BlockExplorer):
         _logger.debug("GET %s", url)
         apikey = self.get_apikey()
         headers = {"API-KEY": apikey} if apikey else {}
-        response = requests.get(url, headers=headers, timeout=20)
+        response = requests.get(url, headers=headers, timeout=self.HTTP_TIMEOUT)
         if response.status_code != 200:
             # 401: invalid API key, 404: invalid address, 429: too many requests
             _logger.warning("Failed to recover data from url %s, response status %s", url, response.status_code)

@@ -61,7 +61,7 @@ class BlockscoutExplorer(BlockExplorer):
         url = f"{self.get_api_url()}addresses/{addr}"
         _logger.debug("GET %s", url)
 
-        response = requests.get(url, timeout=20)
+        response = requests.get(url, timeout=self.HTTP_TIMEOUT)
         if response.status_code != 200:
             if response.status_code == 404:
                 # Not found in blockchain
@@ -96,7 +96,7 @@ class BlockscoutExplorer(BlockExplorer):
         _logger.debug("GET %s", url)
 
         # todo: pagination https://docs.blockscout.com/devs/apis/rest
-        response = requests.get(url, timeout=20)
+        response = requests.get(url, timeout=self.HTTP_TIMEOUT)
         if response.status_code != 200:
             if response.status_code == 404:
                 # Not found in blockchain
@@ -112,7 +112,7 @@ class BlockscoutExplorer(BlockExplorer):
         url = f"{self.get_api_url()}addresses/{addr}/nft"  # no erc20, but erc721, erc404 & erc1155
         _logger.debug("GET %s", url)
 
-        response = requests.get(url, timeout=20)
+        response = requests.get(url, timeout=self.HTTP_TIMEOUT)
         if response.status_code != 200:
             if response.status_code == 404:
                 # no NFT found: keep the tokens already recovered

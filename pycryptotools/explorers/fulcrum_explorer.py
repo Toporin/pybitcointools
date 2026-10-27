@@ -39,7 +39,8 @@ class FulcrumExplorer(BlockExplorer):
             ("cbch.loping.net", 62102),
         ],
     }
-    TIMEOUT = 10  # seconds, per server
+    CONNECT_TIMEOUT = 4  # seconds, per resolved address (see BaseExplorer.HTTP_TIMEOUT)
+    TIMEOUT = 10  # seconds, per server, for the TLS handshake and RPC exchange
 
     def __init__(self, coin: BaseCoin, apikeys: Dict[str, str]):
         super().__init__(coin, apikeys)
@@ -74,7 +75,8 @@ class FulcrumExplorer(BlockExplorer):
     def _rpc_call_server(self, host: str, port: int, method: str, params: list):
         """Open a TLS session with one server and send a single RPC after the version handshake"""
         context = self._ssl_context()
-        with socket.create_connection((host, port), timeout=self.TIMEOUT) as raw_sock:
+        with socket.create_connection((host, port), timeout=self.CONNECT_TIMEOUT) as raw_sock:
+            raw_sock.settimeout(self.TIMEOUT)
             with context.wrap_socket(raw_sock, server_hostname=host) as sock:
                 stream = sock.makefile('rwb')
                 requests = [("server.version", ["pycryptotools", "1.4"]), (method, params)]

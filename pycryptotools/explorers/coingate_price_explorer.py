@@ -80,7 +80,7 @@ class Coingate(PriceExplorer):
         _logger.debug("GET %s", url)
 
         try:
-            response = requests.get(url, timeout=20)
+            response = requests.get(url, timeout=self.HTTP_TIMEOUT)
             if response.status_code != 200:
                 raise DataFetcherError(DataFetcherError.INVALID_URL)
 
