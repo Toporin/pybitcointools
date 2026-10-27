@@ -216,25 +216,26 @@ class TestRegressions(unittest.TestCase):
             Doge().get_coin_info("addr1")
             self.assertEqual(calls[0][1], {})
 
-    def test_litecoin_falls_back_to_litecoinspace(self):
+    def test_litecoin_explorers(self):
         from unittest import mock
         from pycryptotools.explorers.litecoinspace_explorer import LitecoinspaceExplorer
+        # litecoinspace.org is unreachable: Litecoin only uses SoChain
+        for testnet in (False, True):
+            self.assertEqual([type(e).__name__ for e in Litecoin(testnet).explorers], ["SochainExplorer"])
 
+        # LitecoinspaceExplorer stays in the library and still works when used directly
         def fake_get(url, headers=None, timeout=None):
-            if 'sochain' in url:
-                return mock.Mock(status_code=503)
             if 'coingate' in url:
                 return mock.Mock(status_code=200, text="50")
             response = mock.Mock(status_code=200)
             response.json.return_value = {'chain_stats': {'funded_txo_sum': 300000000, 'spent_txo_sum': 100000000}}
             return response
 
+        explorer = LitecoinspaceExplorer(Litecoin(), {})
         with mock.patch('requests.get', side_effect=fake_get):
-            coin_info = Litecoin().get_coin_info("MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
+            coin_info = explorer.get_coin_info("MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
         self.assertEqual(coin_info['balance'], 2)
         self.assertEqual(coin_info['address_explorer_url'], "https://litecoinspace.org/address/MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
-        # litecoinspace.org has no working testnet API, so it is only a mainnet fallback
-        self.assertEqual([type(e).__name__ for e in Litecoin(testnet=True).explorers], ["SochainExplorer"])
         self.assertIsNone(LitecoinspaceExplorer(Litecoin(testnet=True), {}).get_address_web_url("tltc1q"))
 
     def test_polygon_falls_back_to_jsonrpc(self):

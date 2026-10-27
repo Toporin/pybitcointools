@@ -1,4 +1,3 @@
-from pycryptotools.explorers import bscscan
 from pycryptotools.explorers.blockscout_explorer import BlockscoutExplorer
 from pycryptotools.explorers.coingate_price_explorer import Coingate
 from pycryptotools.explorers.jsonrpc_explorer import JsonRpcExplorer
@@ -41,7 +40,6 @@ class Polygon(Ethereum):
 class BinanceSmartChain(Ethereum):
     coin_symbol = "BSC"
     display_name = "Binance Smart Chain"
-    explorer = bscscan
 
     testnet_overrides = {
         'display_name': "BSC Testnet",

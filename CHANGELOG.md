@@ -24,6 +24,10 @@ balances, asset listings and exchange rates. Code that served other purposes has
   (`access`, `multiaccess`, `slice`, `count`, `sum`), `change_curve`, `getG` and the `pubtoaddr`
   alias (use `pubtolegacy`); names from `ripemd` are no longer re-exported by the package
 * `keccak`: everything except `Keccak256` (Keccak-224/384/512, SHA3, SHAKE)
+* explorer modules `etherscan`, `bscscan`, `opensea`, `rarible` (function-based code for retired
+  APIs and testnets), `fullstack_explorer` (Fullstack.cash no longer serves data; replaced by
+  `FulcrumExplorer`) and `nft_explorer` (unused abstract class), and the unused
+  `BinanceSmartChain.explorer` attribute
 * the `cryptotool` command-line script
 * the `pbkdf2` dependency
 
@@ -32,8 +36,9 @@ balances, asset listings and exchange rates. Code that served other purposes has
   their testnets; native balances only (no tokens or NFTs). The API key is read from
   `apikeys['API_KEY_SOCHAIN']` and sent only in the `API-KEY` header. It replaces the old
   function-based `sochain` module, which targeted the retired chain.so v2 API
-* Litecoin and Dogecoin (mainnet and testnet) now use `SochainExplorer`; Litecoin mainnet keeps
-  `LitecoinspaceExplorer` as fallback. Dogecoin and Litecoin testnet have a working explorer again
+* Litecoin and Dogecoin (mainnet and testnet) now use `SochainExplorer`. Dogecoin and Litecoin
+  testnet have a working explorer again. `LitecoinspaceExplorer` is no longer used by Litecoin
+  (litecoinspace.org is unreachable) but remains available in the library
 
 ### Fixed
 Explorer correctness:
@@ -41,8 +46,8 @@ Explorer correctness:
   whose 404 was read as "address not found". Unsupported chains now raise an error
 * Dash and Doge queried Bitcoin testnet through `BlockstreamExplorer`; they now raise an error
   (no supported explorer yet)
-* Litecoin testnet: litecoinspace.org has no working testnet API, so `get_coin_info()` raises
-  and the address link is `None`
+* `LitecoinspaceExplorer` rejects Litecoin testnet (litecoinspace.org has no working testnet API)
+  and returns a `None` address link for it
 * Polygon mainnet: polygon.blockscout.com blocks API clients with a Cloudflare challenge. The
   balance now falls back to a public JSON-RPC node (`JsonRpcExplorer`, link to polygonscan.com)
   with the exchange rate from Coingate. Tokens and NFTs are unavailable while Blockscout is
@@ -73,9 +78,9 @@ Replace `print()` with the standard `logging` module:
 * each module logs to `pycryptotools.<module>`; the package logger has a `NullHandler`, so
   nothing is output unless the application configures logging
 * new `pycryptotools.set_log_level(level)` sets the level of all pycryptotools loggers at once
-* security: the Etherscan/BscScan modules no longer print request URLs containing the API key.
-  In 0.3.2, BIP39 checksum validation (`mnemonic.words_verify`) printed the mnemonic entropy to
-  stdout; that module is removed in this release
+* security: in 0.3.2, BIP39 checksum validation (`mnemonic.words_verify`) printed the mnemonic
+  entropy to stdout, and the Etherscan/BscScan modules printed request URLs containing the API key;
+  these modules are removed in this release
 * remove leftover debug traces; explorer failures are logged as warnings, request traces as debug
 
 Note: output that used to be printed to stdout is now silent by default. Use
