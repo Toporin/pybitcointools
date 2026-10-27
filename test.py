@@ -159,6 +159,62 @@ class TestRegressions(unittest.TestCase):
             asset_list = coin.get_asset_list("0x0000000000000000000000000000000000000001")
         self.assertEqual(sorted(a['type'].name for a in asset_list), [AssetType.NFT.name, AssetType.TOKEN.name])
 
+    def test_unsupported_chains_fail_instead_of_zero_balance(self):
+        from unittest import mock
+        addr_evm = "0x0000000000000000000000000000000000000001"
+        with mock.patch('requests.get') as get:
+            # Blockscout used to query a placeholder url whose 404 meant "balance 0"
+            for coin in (BinanceSmartChain(), RSK(), xDai(), POA()):
+                with self.assertRaises(ValueError):
+                    coin.get_coin_info(addr_evm)
+                with self.assertRaises(ValueError):
+                    coin.get_address_web_url(addr_evm)
+            # Blockstream used to query Bitcoin testnet for Dash/Doge
+            for coin in (Dash(), Doge()):
+                with self.assertRaises(ValueError):
+                    coin.get_coin_info("XpESxaUmonkq8RaLLp46Brx2K39ggQe226")
+            get.assert_not_called()
+
+    def test_litecoin_testnet_unsupported(self):
+        from unittest import mock
+        coin = Litecoin(testnet=True)
+        addr = "tltc1qw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
+        self.assertIsNone(coin.get_address_web_url(addr))
+        with mock.patch('requests.get') as get:
+            with self.assertRaises(ValueError):
+                coin.get_coin_info(addr)
+            get.assert_not_called()
+        self.assertEqual(Litecoin().get_address_web_url("MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS"),
+                         "https://litecoinspace.org/address/MQd1fJwqBJvwLuyhr17PhEFx1swiqDbPQS")
+
+    def test_polygon_falls_back_to_jsonrpc(self):
+        from decimal import Decimal
+        from unittest import mock
+        addr = "0x0000000000000000000000000000000000000001"
+
+        def fake_get(url, timeout=None):
+            if 'blockscout' in url:
+                return mock.Mock(status_code=403)  # Cloudflare challenge
+            if 'coingate' in url:
+                return mock.Mock(status_code=200, text="0.5")
+            raise AssertionError(f"unexpected url {url}")
+
+        def fake_post(url, json=None, timeout=None):
+            self.assertEqual(json['method'], "eth_getBalance")
+            response = mock.Mock(status_code=200)
+            response.json.return_value = {"jsonrpc": "2.0", "id": 1, "result": hex(3 * 10**18)}
+            return response
+
+        coin = Polygon()
+        with mock.patch('requests.get', side_effect=fake_get), mock.patch('requests.post', side_effect=fake_post):
+            coin_info = coin.get_coin_info(addr)
+            self.assertEqual(coin_info['balance'], 3)
+            self.assertEqual(coin_info['exchange_rate'], Decimal("0.5"))
+            self.assertEqual(coin_info['address_explorer_url'], "https://polygonscan.com/address/" + addr)
+            # the fallback cannot list assets: report a failure, not an empty list
+            with self.assertRaises(ValueError):
+                coin.get_asset_list(addr)
+
 
 if __name__ == '__main__':
     unittest.main()

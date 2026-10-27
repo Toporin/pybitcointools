@@ -525,8 +525,9 @@ class DogeCase(unittest.TestCase):
                 # print(addr_segwit)
 
             # url
-            url = self.coin.get_address_web_url(addr)
-            print(f"URL= {url}")
+            # no supported explorer for this coin
+            with self.assertRaises(ValueError):
+                self.coin.get_address_web_url(addr)
 
 
 """ DASH """
@@ -599,8 +600,9 @@ class DashCase(unittest.TestCase):
                 # print(addr_segwit)
 
             # url
-            url = self.coin.get_address_web_url(addr)
-            print(f"URL= {url}")
+            # no supported explorer for this coin
+            with self.assertRaises(ValueError):
+                self.coin.get_address_web_url(addr)
 
 
 """ Bitcoin Cash """

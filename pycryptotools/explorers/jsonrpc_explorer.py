@@ -20,6 +20,10 @@ class JsonRpcExplorer(BlockExplorer):
 
     # coin_symbol -> (JSON-RPC urls tried in order, web explorer base url)
     CHAINS = {
+        "POL": (  # Polygon PoS mainnet (chain id 137)
+            ["https://polygon-bor-rpc.publicnode.com"],
+            "https://polygonscan.com/",
+        ),
         "POLTEST": (  # Polygon Amoy testnet (chain id 80002)
             ["https://polygon-amoy-bor-rpc.publicnode.com", "https://rpc-amoy.polygon.technology"],
             "https://amoy.polygonscan.com/",
@@ -75,6 +79,13 @@ class JsonRpcExplorer(BlockExplorer):
             # testnet coins are worthless
             coin_info['exchange_rate'] = Decimal(0)
             coin_info['currency'] = "USD"
+        else:
+            # get exchange rate from third party
+            try:
+                coin_info['exchange_rate'] = self.coin.get_exchange_rate_with("USD")
+                coin_info['currency'] = "USD"
+            except Exception as ex:
+                coin_info['error'] = str(ex)
 
         # basic info
         coin_info['symbol'] = self.coin_symbol
@@ -87,4 +98,7 @@ class JsonRpcExplorer(BlockExplorer):
     def get_asset_list(self, addr):
         """Get asset info for an address"""
         _logger.debug("JsonRpcExplorer get_asset_list for: %s", addr)
+        if not self.coin.is_testnet:
+            # used as a fallback on mainnet: an empty list would hide the assets held
+            raise DataFetcherError("Token and NFT listing is not supported by JsonRpcExplorer")
         return []

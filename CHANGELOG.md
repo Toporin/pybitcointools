@@ -28,6 +28,18 @@ balances, asset listings and exchange rates. Code that served other purposes has
 * the `pbkdf2` dependency
 
 ### Fixed
+Explorer correctness:
+* BSC, RSK, xDai and POA silently reported a zero balance: Blockscout queried a placeholder url
+  whose 404 was read as "address not found". Unsupported chains now raise an error
+* Dash and Doge queried Bitcoin testnet through `BlockstreamExplorer`; they now raise an error
+  (no supported explorer yet)
+* Litecoin testnet: litecoinspace.org has no working testnet API, so `get_coin_info()` raises
+  and the address link is `None`
+* Polygon mainnet: polygon.blockscout.com blocks API clients with a Cloudflare challenge. The
+  balance now falls back to a public JSON-RPC node (`JsonRpcExplorer`, link to polygonscan.com)
+  with the exchange rate from Coingate. Tokens and NFTs are unavailable while Blockscout is
+  blocked, and `get_asset_list()` then raises instead of returning an empty list
+
 Bug fixes and code quality:
 * `Bitcoin.is_address()`/`is_p2sh()` crashed (missing `address_prefixes`)
 * Blockscout: tokens were overwritten by NFTs in `get_asset_list()`, and a missing exchange rate

@@ -30,7 +30,10 @@ class BlockscoutExplorer(BlockExplorer):
             "BASETEST": "https://base-sepolia.blockscout.com/",
             "POL": "https://polygon.blockscout.com/",
         }
-        return urls.get(self.coin_symbol, "https://notfound.org/")
+        if self.coin_symbol not in urls:
+            # a placeholder url would answer 404, i.e. "address not found" with a zero balance
+            raise DataFetcherError(f"Blockscout does not support {self.coin_symbol}")
+        return urls[self.coin_symbol]
 
     def get_api_url(self) -> str:
         """Get base API URL based on coin symbol"""

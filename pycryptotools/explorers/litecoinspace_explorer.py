@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import Dict
+from typing import Dict, Optional
 import requests
 
 from pycryptotools.coins.base_coin import BaseCoin
@@ -21,13 +21,14 @@ class LitecoinspaceExplorer(BlockExplorer):
         """Get base API URL based on coin symbol"""
         if self.coin_symbol == "LTC":
             return "https://litecoinspace.org/api/"
-        return "https://litecoinspace.org/testnet/api/"
+        # litecoinspace.org/testnet/api rejects testnet addresses
+        raise DataFetcherError(f"Litecoinspace does not support {self.coin_symbol}")
 
-    def get_address_web_url(self, addr: str) -> str:
+    def get_address_web_url(self, addr: str) -> Optional[str]:
         """Get web link for an address"""
         if self.coin_symbol == "LTC":
             return "https://litecoinspace.org/address/" + addr
-        return "https://litecoinspace.org/testnet/address/" + addr
+        return None  # unsupported
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""

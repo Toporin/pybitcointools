@@ -18,17 +18,23 @@ class BlockstreamExplorer(BlockExplorer):
 
     """Utilities"""
 
+    def get_web_url(self) -> str:
+        """Get base URL based on coin symbol"""
+        urls = {
+            "BTC": "https://blockstream.info/",
+            "BTCTEST": "https://blockstream.info/testnet/",
+        }
+        if self.coin_symbol not in urls:
+            raise DataFetcherError(f"Blockstream does not support {self.coin_symbol}")
+        return urls[self.coin_symbol]
+
     def get_api_url(self) -> str:
         """Get base API URL based on coin symbol"""
-        if self.coin_symbol == "BTC":
-            return "https://blockstream.info/api/"
-        return "https://blockstream.info/testnet/api/"
+        return self.get_web_url() + "api/"
 
     def get_address_web_url(self, addr: str) -> str:
         """Get web link for an address"""
-        if self.coin_symbol == "BTC":
-            return "https://blockstream.info/address/" + addr
-        return "https://blockstream.info/testnet/address/" + addr
+        return self.get_web_url() + "address/" + addr
 
     def get_token_web_url(self, contract: str) -> str:
         """Get web link for a token"""
